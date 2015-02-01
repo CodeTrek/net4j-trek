@@ -31,23 +31,23 @@ and at least one other sub-framework called the "Progress monitoring framework".
 
 ========================================================================================================================
 ========================================================================================================================
-
 Exploring OMPlatform
---------------------
 
 The interface to net4j's OM framework is specified in the org.eclipse.net4j.util.om.OMPlatform interface. Implementors
 of this interface are either abstract classes or classes with private constructors, enabling the OMPlatform interface
 to enforce a singleton pattern via its INSTANCE member variable.
 
+========================================================================================================================
+========================================================================================================================
 OSGi vs Legacy Platform Creation
---------------------------------
 
 If net4j is running inside of an OSGi runtime container, then activation of the org.eclipse.net4j.util bundle injects
 the bundle context into AbstractPlatform. If a bundle context is present when the OMPlatform is created (by calling
 OMPlatform.instance), then an OSGi platform is created, otherwise a legacy platform is created.
 
+========================================================================================================================
+========================================================================================================================
 Bundles
--------
 
 The OMPlatform is net4j's runtime container. It abstracts the platform used to manage and execute bundles, where a
 bundle is net4j's unit of deployment and is similar to an OSGi bundle. The OMPlatform supports installing and running
@@ -55,8 +55,22 @@ bundles both within an OSGi runtime container and a plain-old-java (POJ) runtime
 OMPlatform abstraction allows net4j bundles to be developed without concern for which runtime is targeted
 (i.e., OSGi or POJ).
 
+========================================================================================================================
+========================================================================================================================
 Logging
--------
 
 The net4j logging API is accessed via a bundle instance by calling the "logger" method. Use the OMPlatform's
 "addLogHandler" to inject a custom log handler.
+
+Route log messages to standard out and standard err using the PrintLogHandler.CONSOLE log handler, found in the
+org.eclipse.net4j.util.om.log package.
+
+========================================================================================================================
+========================================================================================================================
+Tracing
+
+The net4j bundles are instrumented with tracer statements that can be turned on to aid in debugging. Similarly, you can
+use the same tracer framework to instrument your net4j bundles with debug statements.
+
+Create a bundle tracer for by calling the bundle's "tracer" method.
+
