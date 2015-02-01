@@ -1,0 +1,62 @@
+========================================================================================================================
+========================================================================================================================
+ Copyright (C) 2015 Jay Graham
+ Distributed under the MIT License (see http://www.opensource.org/licenses/mit-license.php)
+
+========================================================================================================================
+========================================================================================================================
+
+I'm starting a coding exercise to become familiar with the net4j communications framework in general and to learn how
+to develop a custom net4j transport in particular.
+
+I'll start by implementing my own version of a JVM protocol similar to the one that ships with netj4.
+
+========================================================================================================================
+========================================================================================================================
+
+I'm extending existing net4j frameworks, so I want to explore fundamental concepts first. I'm using unit tests to do
+this. The first framework I want to test/understand is net4j's "Operations & Maintenance" (OM) framework, as this
+framework includes both foundational (e.g., bundle) and cross-cutting (e.g., logging and tracking) abstractions.
+
+According to the documentation here: https://wiki.eclipse.org/Net4j, the OM framework provides the following
+abstractions:
+
+    Platform abstraction (OSGi, Eclipse runtime, stand alone)
+    Bundle abstraction
+    Logging abstraction
+    Tracing abstraction
+    Preferences abstraction
+ 
+and at least one other sub-framework called the "Progress monitoring framework".
+
+========================================================================================================================
+========================================================================================================================
+
+Exploring OMPlatform
+--------------------
+
+The interface to net4j's OM framework is specified in the org.eclipse.net4j.util.om.OMPlatform interface. Implementors
+of this interface are either abstract classes or classes with private constructors, enabling the OMPlatform interface
+to enforce a singleton pattern via its INSTANCE member variable.
+
+OSGi vs Legacy Platform Creation
+--------------------------------
+
+If net4j is running inside of an OSGi runtime container, then activation of the org.eclipse.net4j.util bundle injects
+the bundle context into AbstractPlatform. If a bundle context is present when the OMPlatform is created (by calling
+OMPlatform.instance), then an OSGi platform is created, otherwise a legacy platform is created.
+
+Bundles
+-------
+
+The OMPlatform is net4j's runtime container. It abstracts the platform used to manage and execute bundles, where a
+bundle is net4j's unit of deployment and is similar to an OSGi bundle. The OMPlatform supports installing and running
+bundles both within an OSGi runtime container and a plain-old-java (POJ) runtime container. Consequently, the
+OMPlatform abstraction allows net4j bundles to be developed without concern for which runtime is targeted
+(i.e., OSGi or POJ).
+
+Logging
+-------
+
+The net4j logging API is accessed via a bundle instance by calling the "logger" method. Use the OMPlatform's
+"addLogHandler" to inject a custom log handler.
