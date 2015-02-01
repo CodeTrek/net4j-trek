@@ -60,3 +60,5 @@ Logging
 
 The net4j logging API is accessed via a bundle instance by calling the "logger" method. Use the OMPlatform's
 "addLogHandler" to inject a custom log handler.
+
+test note
