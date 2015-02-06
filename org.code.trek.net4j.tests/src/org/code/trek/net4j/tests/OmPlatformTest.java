@@ -6,6 +6,7 @@ package org.code.trek.net4j.tests;
 
 import junit.framework.TestCase;
 
+import org.eclipse.net4j.util.om.LegacyUtil;
 import org.eclipse.net4j.util.om.OMPlatform;
 
 /**
@@ -38,5 +39,14 @@ public class OmPlatformTest extends TestCase {
     public void testOmPlatformConfigFolder() {
         OMPlatform omPlatform = OMPlatform.INSTANCE;
         System.out.println("Config folder: " + omPlatform.getConfigFolder().getAbsolutePath());
+    }
+
+    public void testOmPlatformCommandLineArgs() {
+        OMPlatform omPlatform = OMPlatform.INSTANCE;
+        LegacyUtil.setCommandLineArgs(new String[] { "arg1", "arg2", "arg3" });
+
+        for (String arg : omPlatform.getCommandLineArgs()) {
+            System.out.println("Command line arg: " + arg);
+        }
     }
 }

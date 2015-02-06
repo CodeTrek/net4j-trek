@@ -21,6 +21,31 @@ import org.eclipse.net4j.util.om.trace.OMTracer;
  */
 public class OmBundleTest extends TestCase {
 
+    private static class LogHandler extends AbstractLogHandler {
+        private String lastMessage;
+        private Level lastLevel;
+        private Throwable lastThrowable;
+
+        @Override
+        protected void writeLog(OMLogger logger, Level level, String msg, Throwable t) throws Throwable {
+            lastLevel = level;
+            lastMessage = msg;
+            lastThrowable = t;
+        }
+
+        Level getLastLevel() {
+            return lastLevel;
+        }
+
+        String getLastMessage() {
+            return lastMessage;
+        }
+
+        Throwable getLastThrowable() {
+            return lastThrowable;
+        }
+    }
+
     private static class TraceHandler implements OMTraceHandler {
         private String lastMessage;
 
@@ -34,41 +59,23 @@ public class OmBundleTest extends TestCase {
         }
     }
 
-    private static class LogHandler extends AbstractLogHandler {
-        private String lastMessage;
-        private Level lastLevel;
-        private Throwable lastThrowable;
-
-        @Override
-        protected void writeLog(OMLogger logger, Level level, String msg, Throwable t) throws Throwable {
-            lastLevel = level;
-            lastMessage = msg;
-            lastThrowable = t;
-        }
-
-        String getLastMessage() {
-            return lastMessage;
-        }
-
-        Level getLastLevel() {
-            return lastLevel;
-        }
-
-        Throwable getLastThrowable() {
-            return lastThrowable;
-        }
-    }
+    private OMBundle bundle;
 
     private OMTracer levelTracer;
 
+    public void testOmBundleConsoleLogger() {
+        OMPlatform.INSTANCE.addLogHandler(PrintLogHandler.CONSOLE);
+        OMLogger logger = bundle.logger();
+        logger.warn("hello, world");
+        OMPlatform.INSTANCE.removeLogHandler(PrintLogHandler.CONSOLE);
+    }
+
     public void testOmBundleCreation() {
-        OMBundle bundle = OMPlatform.INSTANCE.bundle("org.code.trek.test.bundle", OmBundleTest.class);
+        OMBundle bundle = OMPlatform.INSTANCE.bundle("org.code.trek.test.bundle.new", OmBundleTest.class);
         assertNotNull(bundle);
     }
 
     public void testOmBundleLogger() {
-        OMBundle bundle = OMPlatform.INSTANCE.bundle("org.code.trek.test.bundle", OmBundleTest.class);
-
         LogHandler logHandler = new LogHandler();
         OMPlatform.INSTANCE.addLogHandler(logHandler);
 
@@ -79,17 +86,25 @@ public class OmBundleTest extends TestCase {
         assertTrue(logHandler.getLastMessage().equals("debug message"));
         assertTrue(logHandler.getLastLevel() == Level.DEBUG);
         assertNull(logHandler.getLastThrowable());
+
+        OMPlatform.INSTANCE.removeLogHandler(logHandler);
     }
 
-    public void testOmBundleConsoleLogger() {
-        OMBundle bundle = OMPlatform.INSTANCE.bundle("org.code.trek.test.bundle", OmBundleTest.class);
-        OMPlatform.INSTANCE.addLogHandler(PrintLogHandler.CONSOLE);
-        OMLogger logger = bundle.logger();
-        logger.warn("hello, world");
+    public void testOmBundleTracer() {
+        TraceHandler traceHandler = new TraceHandler();
+        OMPlatform.INSTANCE.addTraceHandler(traceHandler);
+
+        OMTracer debugTracer = bundle.tracer("debug");
+        levelTracer = debugTracer.tracer("level1");
+        debugTracer.tracer("level2");
+
+        levelTracer.trace(getClass(), "trace message 1");
+
+        System.out.println(traceHandler.getLastMessage());
+        OMPlatform.INSTANCE.removeTraceHandler(traceHandler);
     }
 
     public void testOmBundleTracerEnablement() {
-        OMBundle bundle = OMPlatform.INSTANCE.bundle("org.code.trek.test.bundle", OmBundleTest.class);
 
         // Create a tracer
         OMTracer t1Tracer = bundle.tracer("t1");
@@ -107,7 +122,6 @@ public class OmBundleTest extends TestCase {
         assertFalse(t1Tracer.isEnabled());
 
         // Turn on the bundle's global debugging switch
-        bundle.getDebugSupport().setDebugOption("debug", true);
         bundle.getDebugSupport().setDebugging(true);
 
         // Enabled now
@@ -115,8 +129,6 @@ public class OmBundleTest extends TestCase {
     }
 
     public void testOmBundleTracerEnablementParentChild() {
-        OMBundle bundle = OMPlatform.INSTANCE.bundle("org.code.trek.test.bundle", OmBundleTest.class);
-
         // Create a parent tracer
         OMTracer p1Tracer = bundle.tracer("p1");
 
@@ -148,16 +160,21 @@ public class OmBundleTest extends TestCase {
         assertTrue(p1c1Tracer.isEnabled());
 
         System.err.println(p1c1Tracer.getFullName());
-
     }
 
-    public void testOmBundleTracer() {
-        TraceHandler traceHandler = new TraceHandler();
-        OMPlatform.INSTANCE.addTraceHandler(traceHandler);
+    @Override
+    protected void setUp() throws Exception {
+        // Turn debugging off at the platform level
+        OMPlatform.INSTANCE.setDebugging(false);
 
-        OMBundle bundle = OMPlatform.INSTANCE.bundle("org.code.trek.test.bundle", OmBundleTest.class);
-        OMTracer debugTracer = bundle.tracer("debug");
-        levelTracer = debugTracer.tracer("level1");
-        debugTracer.tracer("level2");
+        bundle = OMPlatform.INSTANCE.bundle("org.code.trek.test.bundle", OmBundleTest.class);
+        bundle.getDebugSupport().setDebugOption("debug", false);
+        bundle.getDebugSupport().setDebugging(false);
+        super.setUp();
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        super.tearDown();
     }
 }

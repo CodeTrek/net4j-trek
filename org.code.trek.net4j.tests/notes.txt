@@ -15,7 +15,11 @@ I'll start by implementing my own version of a JVM protocol similar to the one t
 ========================================================================================================================
 
 I'm extending existing net4j frameworks, so I want to explore fundamental concepts first. I'm using unit tests to do
-this. The first framework I want to test/understand is net4j's "Operations & Maintenance" (OM) framework, as this
+this. The idea is to use the JUnit testing framework as a way to create a collection of executable code samples. So the
+point of my unit tests is not to "test" net4j for correct behavior, but to demonstrate net4j's behavior in small,
+easy to digest chunks that just happen to be in the form of unit tests.
+
+The first framework I want to test/understand is net4j's "Operations & Maintenance" (OM) framework, as this
 framework includes both foundational (e.g., bundle) and cross-cutting (e.g., logging and tracking) abstractions.
 
 According to the documentation here: https://wiki.eclipse.org/Net4j, the OM framework provides the following
@@ -73,4 +77,8 @@ The net4j bundles are instrumented with tracer statements that can be turned on 
 use the same tracer framework to instrument your net4j bundles with debug statements.
 
 Create a bundle tracer for by calling the bundle's "tracer" method.
+
+Tracers are named entities that are stored with a bundle's debug options. Bundle debug options are managed by the
+platform. So if a bundle is deployed into an OSGi platform, tracing is tied into OSGi's
+org.eclipse.osgi.service.debug.DebugOptions service.
 
