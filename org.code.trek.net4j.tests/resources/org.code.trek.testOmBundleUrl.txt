@@ -1,0 +1,1 @@
+this is a line from a org.code.trek.testOmBundleUrl resource file. NCC 1701

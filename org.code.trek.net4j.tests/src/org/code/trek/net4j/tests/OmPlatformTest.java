@@ -12,7 +12,7 @@ import org.eclipse.net4j.util.om.LegacyUtil;
 import org.eclipse.net4j.util.om.OMPlatform;
 
 /**
- * These tests explore net4j's "Operations & Maintenance" (OM) framework concepts. This framework includes both
+ * These tests explore net4j "Operations & Maintenance" (OM) framework concepts. This framework includes both
  * foundational (e.g., bundle) and cross-cutting (e.g., logging and tracking) abstractions.
  * <p>
  * 
@@ -64,7 +64,14 @@ public class OmPlatformTest extends TestCase {
         assertFalse(omPlatform.isExtensionRegistryAvailable());
     }
 
+    /**
+     * <b>OM Platform State Folder</b>
+     * <p>
+     * 
+     * The system property <code>net4j.state</code> designates the folder used to hold net4j OMPlatform state files.
+     */
     public void testOmPlatformStateFolder() {
+        System.setProperty("net4j.state", ".");
         OMPlatform omPlatform = OMPlatform.INSTANCE;
         System.out.println("State folder: " + omPlatform.getStateFolder().getAbsolutePath());
     }
@@ -85,6 +92,10 @@ public class OmPlatformTest extends TestCase {
         System.out.println(property1Value + ", " + property2Value);
     }
 
+    /**
+     * <b>OM Platform Command Line Arguments</b>
+     * <p>
+     */
     public void testOmPlatformCommandLineArgs() {
         OMPlatform omPlatform = OMPlatform.INSTANCE;
         LegacyUtil.setCommandLineArgs(new String[] { "arg1", "arg2", "arg3" });

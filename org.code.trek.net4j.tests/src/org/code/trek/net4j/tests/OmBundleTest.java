@@ -4,6 +4,13 @@
  */
 package org.code.trek.net4j.tests;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Map.Entry;
+import java.util.Properties;
+
 import junit.framework.TestCase;
 
 import org.eclipse.net4j.util.om.OMBundle;
@@ -17,7 +24,14 @@ import org.eclipse.net4j.util.om.trace.OMTraceHandlerEvent;
 import org.eclipse.net4j.util.om.trace.OMTracer;
 
 /**
- * A collection of unit tests used as point of entry "hooks" into the net4j OMBundle framework.
+ * <b>Bundles</b>
+ * <p>
+ * 
+ * The OMPlatform is net4j's runtime container. It abstracts the platform used to manage and execute bundles, where a
+ * bundle is net4j's unit of deployment and is similar to an OSGi bundle. The OMPlatform supports installing and running
+ * bundles both within an OSGi runtime container and a plain-old-java (POJ) runtime container. Consequently, the
+ * OMPlatform abstraction allows net4j bundles to be developed without concern for which runtime is targeted (i.e., OSGi
+ * or POJ).
  */
 public class OmBundleTest extends TestCase {
 
@@ -63,16 +77,57 @@ public class OmBundleTest extends TestCase {
 
     private OMTracer levelTracer;
 
+    /**
+     * <b>Bundle Creation</b>
+     * <p>
+     * 
+     * The <code>OMPlatform.INSTANCE</code> singleton provides a factory method for creating bundles.
+     */
+    public void testOmBundleCreation() {
+        OMBundle bundle = OMPlatform.INSTANCE.bundle("org.code.trek.testOmBundleCreation", OmBundleTest.class);
+        assertNotNull(bundle);
+
+        // The platform contains this bundle
+        assertTrue(bundle.getPlatform() == OMPlatform.INSTANCE);
+        assertTrue(bundle.getBundleID().equals("org.code.trek.testOmBundleCreation"));
+    }
+
+    /**
+     * <b>Bundle Base URL</b>
+     * <p>
+     * 
+     * A bundle's resources such as its configuration property file and state resources are contained in a resource at
+     * the location returned by the <code>getBaseURL()</code> method.
+     */
+    public void testOmBundleUrl() {
+        OMBundle bundle = OMPlatform.INSTANCE.bundle("org.code.trek.testOmBundleUrl", OmBundleTest.class);
+        System.out.println(bundle.getBaseURL());
+        System.out.println(bundle.getConfigFile().getPath());
+        System.out.println(bundle.getStateLocation());
+
+        // Get the bundle's configuration properties
+        Properties properties = bundle.getConfigProperties();
+
+        for (Entry<Object, Object> property : properties.entrySet()) {
+            System.out.println(property.getKey() + " = " + property.getValue());
+        }
+
+        // Custom bundle resources can be stored in a location relative to the bundle's base URL
+        try {
+            InputStream istream = bundle.getInputStream("/resources/org.code.trek.testOmBundleUrl.txt");
+            InputStreamReader streamReader = new InputStreamReader(istream);
+            BufferedReader reader = new BufferedReader(streamReader);
+            System.out.println(reader.readLine());
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+        }
+    }
+
     public void testOmBundleConsoleLogger() {
         OMPlatform.INSTANCE.addLogHandler(PrintLogHandler.CONSOLE);
         OMLogger logger = bundle.logger();
         logger.warn("hello, world");
         OMPlatform.INSTANCE.removeLogHandler(PrintLogHandler.CONSOLE);
-    }
-
-    public void testOmBundleCreation() {
-        OMBundle bundle = OMPlatform.INSTANCE.bundle("org.code.trek.test.bundle.new", OmBundleTest.class);
-        assertNotNull(bundle);
     }
 
     public void testOmBundleLogger() {
