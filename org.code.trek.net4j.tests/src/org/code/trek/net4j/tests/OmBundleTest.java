@@ -27,11 +27,10 @@ import org.eclipse.net4j.util.om.trace.OMTracer;
  * <b>Bundles</b>
  * <p>
  * 
- * The OMPlatform is net4j's runtime container. It abstracts the platform used to manage and execute bundles, where a
- * bundle is net4j's unit of deployment and is similar to an OSGi bundle. The OMPlatform supports installing and running
- * bundles both within an OSGi runtime container and a plain-old-java (POJ) runtime container. Consequently, the
- * OMPlatform abstraction allows net4j bundles to be developed without concern for which runtime is targeted (i.e., OSGi
- * or POJ).
+ * The net4j OMPlatform is a runtime container for bundles, where a bundle is net4j's unit of deployment and is similar
+ * to an OSGi bundle. The OMPlatform supports installing and running bundles both within an OSGi runtime container and a
+ * plain-old-java (POJ) runtime container. Consequently, the OMPlatform abstraction allows net4j bundles to be developed
+ * without concern for which runtime is targeted (i.e., OSGi or POJ).
  */
 public class OmBundleTest extends TestCase {
 
@@ -39,12 +38,18 @@ public class OmBundleTest extends TestCase {
         private String lastMessage;
         private Level lastLevel;
         private Throwable lastThrowable;
+        private OMLogger lastLogger;
 
         @Override
         protected void writeLog(OMLogger logger, Level level, String msg, Throwable t) throws Throwable {
+            lastLogger = logger;
             lastLevel = level;
             lastMessage = msg;
             lastThrowable = t;
+        }
+
+        OMLogger getLastLogger() {
+            return lastLogger;
         }
 
         Level getLastLevel() {
@@ -123,17 +128,44 @@ public class OmBundleTest extends TestCase {
         }
     }
 
+    /**
+     * <b>OMBundle Console Logger</b>
+     * <p>
+     * 
+     * net4j provides a utility log handler called <code>PrintLogHandler.CONSOLE</code> for logging messages to standard
+     * out and standard error.
+     */
     public void testOmBundleConsoleLogger() {
+        OMBundle bundle = OMPlatform.INSTANCE.bundle("org.code.trek.testOmBundleConsoleLogger", OmBundleTest.class);
+
         OMPlatform.INSTANCE.addLogHandler(PrintLogHandler.CONSOLE);
+
         OMLogger logger = bundle.logger();
-        logger.warn("hello, world");
+
+        logger.debug("transporter buffer set to 99% cache efficiency");
+        logger.info("shields are at maximum");
+        logger.warn("warning, phaser on overload");
+        logger.error("error, command code rejected");
+
         OMPlatform.INSTANCE.removeLogHandler(PrintLogHandler.CONSOLE);
     }
 
+    /**
+     * <b>OMBundle Logger</b>
+     * <p>
+     * 
+     * The <code>OMPlatform</code> and bundles work together to provide a logging framework. Custom logging is injected
+     * into the framework by calling <code>OMPlatform.INSTANCE.addLogHandler()</code> with a custom log handler. Access
+     * to the system logger is provided by the bundle via a call to a bundle's <code>logger()</code> method.
+     */
     public void testOmBundleLogger() {
+        OMBundle bundle = OMPlatform.INSTANCE.bundle("org.code.trek.testOmBundleLogger", OmBundleTest.class);
+
+        // Register a custom handler with the platform
         LogHandler logHandler = new LogHandler();
         OMPlatform.INSTANCE.addLogHandler(logHandler);
 
+        // Get the logger from the bundle
         OMLogger logger = bundle.logger();
 
         logger.debug("debug message");
@@ -142,79 +174,102 @@ public class OmBundleTest extends TestCase {
         assertTrue(logHandler.getLastLevel() == Level.DEBUG);
         assertNull(logHandler.getLastThrowable());
 
+        logger.info("info message");
+
+        assertTrue(logHandler.getLastMessage().equals("info message"));
+        assertTrue(logHandler.getLastLevel() == Level.INFO);
+        assertNull(logHandler.getLastThrowable());
+
+        logger.warn("warn message");
+
+        assertTrue(logHandler.getLastMessage().equals("warn message"));
+        assertTrue(logHandler.getLastLevel() == Level.WARN);
+        assertNull(logHandler.getLastThrowable());
+
+        logger.error("error message");
+
+        assertTrue(logHandler.getLastMessage().equals("error message"));
+        assertTrue(logHandler.getLastLevel() == Level.ERROR);
+        assertNull(logHandler.getLastThrowable());
+
         OMPlatform.INSTANCE.removeLogHandler(logHandler);
     }
 
+    /**
+     * <b>OMBundle Tracing</b>
+     * <p>
+     * 
+     * net4j is instrumented with tracer statements that can be turned on to aid in debugging. You can use the same
+     * tracer framework to instrument your net4j bundles with debug statements. Like logging, you inject your custom
+     * tracer via the <code>OMPlatform</code>.
+     * <p>
+     * 
+     * Note on OSGi bundles: Tracers are named entities that are stored with a bundle's debug options. Bundle debug
+     * options are managed by the platform. So if a bundle is deployed into an OSGi platform, tracing is tied into
+     * OSGi's <code>org.eclipse.osgi.service.debug.DebugOptions</code> service.
+     */
     public void testOmBundleTracer() {
+        // Turn tracing on at the platform level
+        OMPlatform.INSTANCE.setDebugging(true);
+
+        OMBundle bundle = OMPlatform.INSTANCE.bundle("org.code.trek.testOmBundleTracer", OmBundleTest.class);
+
+        // Turn tracing on at the bundle level
+        bundle.getDebugSupport().setDebugging(true);
+        bundle.getDebugSupport().setDebugOption("debug", true);
+
+        // Install a custom tracer
         TraceHandler traceHandler = new TraceHandler();
         OMPlatform.INSTANCE.addTraceHandler(traceHandler);
 
-        OMTracer debugTracer = bundle.tracer("debug");
-        levelTracer = debugTracer.tracer("level1");
-        debugTracer.tracer("level2");
-
-        levelTracer.trace(getClass(), "trace message 1");
+        // Create a tracer
+        OMTracer tracer = bundle.tracer("t1");
+        tracer.setEnabled(true);
+        if (tracer.isEnabled()) {
+            tracer.trace(getClass(), "photon locked");
+        }
 
         System.out.println(traceHandler.getLastMessage());
+        assertEquals("photon locked", traceHandler.getLastMessage());
         OMPlatform.INSTANCE.removeTraceHandler(traceHandler);
     }
 
-    public void testOmBundleTracerEnablement() {
-
-        // Create a tracer
-        OMTracer t1Tracer = bundle.tracer("t1");
-
-        // Tracer's are disabled by default, so enable this one
-        t1Tracer.setEnabled(true);
-
-        // Platform and bundle global debugging switches must be turned on before this tracer reports that it's enabled
-        assertFalse(t1Tracer.isEnabled());
-
-        // Turn on the global platform debugging switch
+    /**
+     * <b>OMBundle Tracing Enablement</b>
+     * <p>
+     * 
+     * Use the <code>setEnabled()</code> method to enable/disable a tracer.
+     *
+     * <p>
+     * <b>Note</b>: The system property <code>org.eclipse.net4j.util.om.trace.Tracer..PROP_DISABLE_TRACING</code>
+     * enables/disables tracing globally. The value of this constant is
+     * <code>org.eclipse.net4j.util.om.trace.disable</code>.
+     */
+    public void testOmBundlelTracerEnablement() {
+        // Turn tracing on at the platform level
         OMPlatform.INSTANCE.setDebugging(true);
 
-        // Not enabled yet...
-        assertFalse(t1Tracer.isEnabled());
+        OMBundle bundle = OMPlatform.INSTANCE.bundle("org.code.trek.testOmBundlelTracerEnablement", OmBundleTest.class);
 
-        // Turn on the bundle's global debugging switch
+        // Turn tracing on at the bundle level
         bundle.getDebugSupport().setDebugging(true);
+        bundle.getDebugSupport().setDebugOption("debug", true);
 
-        // Enabled now
-        assertTrue(t1Tracer.isEnabled());
+        // Install a custom tracer
+        TraceHandler traceHandler = new TraceHandler();
+        OMPlatform.INSTANCE.addTraceHandler(traceHandler);
+
+        OMTracer tracer = bundle.tracer("t1");
+        tracer.setEnabled(false);
+        assertFalse(tracer.isEnabled());
+
+        tracer.setEnabled(true);
+        assertTrue(tracer.isEnabled());
+
+        OMPlatform.INSTANCE.removeTraceHandler(traceHandler);
     }
 
     public void testOmBundleTracerEnablementParentChild() {
-        // Create a parent tracer
-        OMTracer p1Tracer = bundle.tracer("p1");
-
-        // Create a child tracer
-        OMTracer p1c1Tracer = p1Tracer.tracer("c1");
-
-        // Turn on the global platform and bundle debugging
-        OMPlatform.INSTANCE.setDebugging(true);
-        bundle.getDebugSupport().setDebugOption("debug", true);
-        bundle.getDebugSupport().setDebugging(true);
-
-        // Enabled now
-        assertFalse(p1Tracer.isEnabled());
-        assertFalse(p1c1Tracer.isEnabled());
-
-        p1Tracer.setEnabled(true);
-
-        assertTrue(p1Tracer.isEnabled());
-        assertFalse(p1c1Tracer.isEnabled());
-
-        p1c1Tracer.setEnabled(true);
-
-        assertTrue(p1Tracer.isEnabled());
-        assertTrue(p1c1Tracer.isEnabled());
-
-        p1Tracer.setEnabled(false);
-
-        assertFalse(p1Tracer.isEnabled());
-        assertTrue(p1c1Tracer.isEnabled());
-
-        System.err.println(p1c1Tracer.getFullName());
     }
 
     @Override
@@ -222,9 +277,6 @@ public class OmBundleTest extends TestCase {
         // Turn debugging off at the platform level
         OMPlatform.INSTANCE.setDebugging(false);
 
-        bundle = OMPlatform.INSTANCE.bundle("org.code.trek.test.bundle", OmBundleTest.class);
-        bundle.getDebugSupport().setDebugOption("debug", false);
-        bundle.getDebugSupport().setDebugging(false);
         super.setUp();
     }
 
