@@ -31,6 +31,10 @@ import org.eclipse.net4j.util.om.trace.OMTracer;
  * to an OSGi bundle. The OMPlatform supports installing and running bundles both within an OSGi runtime container and a
  * plain-old-java (POJ) runtime container. Consequently, the OMPlatform abstraction allows net4j bundles to be developed
  * without concern for which runtime is targeted (i.e., OSGi or POJ).
+ * <p>
+ * 
+ * In addition to providing net4j's unit of deployment, the <code>OMBundle</code> interface provides access to net4j's
+ * logging and tracing frameworks.
  */
 public class OmBundleTest extends TestCase {
 
@@ -67,20 +71,28 @@ public class OmBundleTest extends TestCase {
 
     private static class TraceHandler implements OMTraceHandler {
         private String lastMessage;
+        private OMTracer lastTracer;
+        private Class<?> lastContext;
 
         @Override
         public void traced(OMTraceHandlerEvent event) {
+            lastTracer = event.getTracer();
             lastMessage = event.getMessage();
+            lastContext = event.getContext();
         }
 
         String getLastMessage() {
             return lastMessage;
         }
+
+        OMTracer getLastTracer() {
+            return lastTracer;
+        }
+
+        Class<?> getLastContext() {
+            return lastContext;
+        }
     }
-
-    private OMBundle bundle;
-
-    private OMTracer levelTracer;
 
     /**
      * <b>Bundle Creation</b>
@@ -269,7 +281,52 @@ public class OmBundleTest extends TestCase {
         OMPlatform.INSTANCE.removeTraceHandler(traceHandler);
     }
 
-    public void testOmBundleTracerEnablementParentChild() {
+    /**
+     * <b>OMBundle Parent/Child Tracers</b>
+     * <p>
+     * 
+     * The tracer framework lets you create tracers with parent/child relationships. Use this feature to create a
+     * hierarchy of logically related tracer groupings.
+     */
+    public void testOmBundleTracerParentChild() {
+        // Turn tracing on at the platform level
+        OMPlatform.INSTANCE.setDebugging(true);
+
+        OMBundle bundle = OMPlatform.INSTANCE.bundle("org.code.trek.testOmBundleTracerParentChild", OmBundleTest.class);
+
+        // Turn tracing on at the bundle level
+        bundle.getDebugSupport().setDebugging(true);
+        bundle.getDebugSupport().setDebugOption("debug", true);
+
+        // Create a hierarchy of tracers separated into categories.
+
+        // comm
+        OMTracer commTracer = bundle.tracer("comm");
+        System.out.println(commTracer.getFullName());
+
+        // comm.space
+        OMTracer spaceTracer = commTracer.tracer("space");
+        System.out.println(spaceTracer.getFullName());
+
+        // comm.space.supspace
+        OMTracer subSpaceTracer = spaceTracer.tracer("subspace");
+        System.out.println(subSpaceTracer.getFullName());
+
+        // comm.vhf
+        OMTracer vhfTracer = commTracer.tracer("vhf");
+        System.out.println(vhfTracer.getFullName());
+
+        TraceHandler traceHandler = new TraceHandler();
+        OMPlatform.INSTANCE.addTraceHandler(traceHandler);
+
+        subSpaceTracer.setEnabled(true);
+        subSpaceTracer.trace(getClass(), "sub-space communication level x");
+
+        System.out.println(traceHandler.getLastMessage());
+        System.out.println(traceHandler.getLastTracer().getFullName());
+        System.out.println(traceHandler.getLastContext());
+
+        OMPlatform.INSTANCE.removeTraceHandler(traceHandler);
     }
 
     @Override
