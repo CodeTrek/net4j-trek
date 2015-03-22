@@ -11,14 +11,17 @@
  * I'll start by implementing my own version of a JVM protocol similar to the one that ships with netj4.
  * <p>
  * 
- * But first, since I'm extending existing net4j frameworks, I want to begin by exploring fundamental net4j framework
- * concepts. I'm using unit tests to do this. The idea is to use the JUnit testing framework as a way to create a
- * collection of executable code samples. So the point of my unit tests is not to "test" net4j for correct behavior, but
- * to demonstrate net4j's behavior in small, easy to digest chunks that just happen to be in the form of unit tests.
+ * But first, since I'm extending existing net4j frameworks, I want to explore fundamental net4j framework concepts. I'm
+ * using unit tests to do this. The idea is to use the JUnit testing framework as a way to create a collection of
+ * executable code samples. So the point is not to "test" net4j for correct behavior, but to demonstrate  net4j's
+ * behavior in small, easy to digest chunks that just happen to be in the form of unit tests.
  * <p>
+ *
+ * <ul>
+ * <li>{@link org.code.trek.net4j.tests.OmPlatformTest OM Platform Unit Tests}</li>
+ * <li>{@link org.code.trek.net4j.tests.OmBundleTest OM Bundle Unit Tests}</li>
+ * <li>{@link org.code.trek.net4j.tests.BufferTest Buffer Tests}</li>
+ * </ul>
  * 
- * I'll start with net4j's "Operations & Maintenance" (OM) framework, as this framework includes both foundational
- * (e.g., bundle) and cross-cutting (e.g., logging and tracking) abstractions. The OM framework unit tests are
- * documented here: {@link org.code.trek.net4j.tests.OmPlatformTest OmPlatformTest}
  */
 package org.code.trek.net4j.tests;

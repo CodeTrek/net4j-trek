@@ -12,6 +12,9 @@ import org.eclipse.net4j.util.om.LegacyUtil;
 import org.eclipse.net4j.util.om.OMPlatform;
 
 /**
+ * <b>OM Platforam</b>
+ * <p>
+ * 
  * These tests explore net4j "Operations & Maintenance" (OM) framework concepts. This framework includes both
  * foundational (e.g., bundle) and cross-cutting (e.g., logging and tracking) abstractions.
  * <p>

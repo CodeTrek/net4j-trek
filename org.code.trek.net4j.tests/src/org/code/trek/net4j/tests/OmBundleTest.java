@@ -15,12 +15,9 @@ import junit.framework.TestCase;
 
 import org.eclipse.net4j.util.om.OMBundle;
 import org.eclipse.net4j.util.om.OMPlatform;
-import org.eclipse.net4j.util.om.log.AbstractLogHandler;
 import org.eclipse.net4j.util.om.log.OMLogger;
 import org.eclipse.net4j.util.om.log.OMLogger.Level;
 import org.eclipse.net4j.util.om.log.PrintLogHandler;
-import org.eclipse.net4j.util.om.trace.OMTraceHandler;
-import org.eclipse.net4j.util.om.trace.OMTraceHandlerEvent;
 import org.eclipse.net4j.util.om.trace.OMTracer;
 
 /**
@@ -37,62 +34,6 @@ import org.eclipse.net4j.util.om.trace.OMTracer;
  * logging and tracing frameworks.
  */
 public class OmBundleTest extends TestCase {
-
-    private static class LogHandler extends AbstractLogHandler {
-        private String lastMessage;
-        private Level lastLevel;
-        private Throwable lastThrowable;
-        private OMLogger lastLogger;
-
-        @Override
-        protected void writeLog(OMLogger logger, Level level, String msg, Throwable t) throws Throwable {
-            lastLogger = logger;
-            lastLevel = level;
-            lastMessage = msg;
-            lastThrowable = t;
-        }
-
-        OMLogger getLastLogger() {
-            return lastLogger;
-        }
-
-        Level getLastLevel() {
-            return lastLevel;
-        }
-
-        String getLastMessage() {
-            return lastMessage;
-        }
-
-        Throwable getLastThrowable() {
-            return lastThrowable;
-        }
-    }
-
-    private static class TraceHandler implements OMTraceHandler {
-        private String lastMessage;
-        private OMTracer lastTracer;
-        private Class<?> lastContext;
-
-        @Override
-        public void traced(OMTraceHandlerEvent event) {
-            lastTracer = event.getTracer();
-            lastMessage = event.getMessage();
-            lastContext = event.getContext();
-        }
-
-        String getLastMessage() {
-            return lastMessage;
-        }
-
-        OMTracer getLastTracer() {
-            return lastTracer;
-        }
-
-        Class<?> getLastContext() {
-            return lastContext;
-        }
-    }
 
     /**
      * <b>Bundle Creation</b>
@@ -182,26 +123,26 @@ public class OmBundleTest extends TestCase {
 
         logger.debug("debug message");
 
-        assertTrue(logHandler.getLastMessage().equals("debug message"));
-        assertTrue(logHandler.getLastLevel() == Level.DEBUG);
+        assertTrue(logHandler.getMessages().get(0).equals("debug message"));
+        assertTrue(logHandler.getLevels().get(0) == Level.DEBUG);
         assertNull(logHandler.getLastThrowable());
 
         logger.info("info message");
 
-        assertTrue(logHandler.getLastMessage().equals("info message"));
-        assertTrue(logHandler.getLastLevel() == Level.INFO);
+        assertTrue(logHandler.getMessages().get(1).equals("info message"));
+        assertTrue(logHandler.getLevels().get(1) == Level.INFO);
         assertNull(logHandler.getLastThrowable());
 
         logger.warn("warn message");
 
-        assertTrue(logHandler.getLastMessage().equals("warn message"));
-        assertTrue(logHandler.getLastLevel() == Level.WARN);
+        assertTrue(logHandler.getMessages().get(2).equals("warn message"));
+        assertTrue(logHandler.getLevels().get(2) == Level.WARN);
         assertNull(logHandler.getLastThrowable());
 
         logger.error("error message");
 
-        assertTrue(logHandler.getLastMessage().equals("error message"));
-        assertTrue(logHandler.getLastLevel() == Level.ERROR);
+        assertTrue(logHandler.getMessages().get(3).equals("error message"));
+        assertTrue(logHandler.getLevels().get(3) == Level.ERROR);
         assertNull(logHandler.getLastThrowable());
 
         OMPlatform.INSTANCE.removeLogHandler(logHandler);
@@ -241,8 +182,8 @@ public class OmBundleTest extends TestCase {
             tracer.trace(getClass(), "photon locked");
         }
 
-        System.out.println(traceHandler.getLastMessage());
-        assertEquals("photon locked", traceHandler.getLastMessage());
+        System.out.println(traceHandler.getMessages().get(0));
+        assertEquals("photon locked", traceHandler.getMessages().get(0));
         OMPlatform.INSTANCE.removeTraceHandler(traceHandler);
     }
 
@@ -253,7 +194,7 @@ public class OmBundleTest extends TestCase {
      * Use the <code>setEnabled()</code> method to enable/disable a tracer.
      *
      * <p>
-     * <b>Note</b>: The system property <code>org.eclipse.net4j.util.om.trace.Tracer..PROP_DISABLE_TRACING</code>
+     * <b>Note</b>: The system property <code>org.eclipse.net4j.util.om.trace.Tracer.PROP_DISABLE_TRACING</code>
      * enables/disables tracing globally. The value of this constant is
      * <code>org.eclipse.net4j.util.om.trace.disable</code>.
      */
@@ -322,7 +263,7 @@ public class OmBundleTest extends TestCase {
         subSpaceTracer.setEnabled(true);
         subSpaceTracer.trace(getClass(), "sub-space communication level x");
 
-        System.out.println(traceHandler.getLastMessage());
+        System.out.println(traceHandler.getMessages().get(0));
         System.out.println(traceHandler.getLastTracer().getFullName());
         System.out.println(traceHandler.getLastContext());
 
