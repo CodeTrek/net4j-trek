@@ -12,7 +12,7 @@ import org.eclipse.spi.net4j.ConnectorFactory;
  * A transport connector factory.
  */
 public class TransportConnectorFactory extends ConnectorFactory {
-    public static final String TYPE = "transport";
+    public static final String TYPE = "org.code.trek.transport";
 
     public TransportConnectorFactory() {
         super(TYPE);

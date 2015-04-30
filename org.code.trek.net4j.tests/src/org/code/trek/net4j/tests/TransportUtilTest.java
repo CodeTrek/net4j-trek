@@ -4,28 +4,49 @@
  */
 package org.code.trek.net4j.tests;
 
-import junit.framework.TestCase;
+import java.util.List;
+import java.util.Map.Entry;
 
 import org.code.trek.net4j.test.transport.TransportUtil;
 import org.eclipse.net4j.Net4jUtil;
 import org.eclipse.net4j.util.ReflectUtil;
 import org.eclipse.net4j.util.container.ContainerUtil;
+import org.eclipse.net4j.util.container.IElementProcessor;
 import org.eclipse.net4j.util.container.IManagedContainer;
+import org.eclipse.net4j.util.factory.IFactory;
+import org.eclipse.net4j.util.factory.IFactoryKey;
+import org.eclipse.net4j.util.lifecycle.LifecycleException;
+import org.eclipse.net4j.util.lifecycle.LifecycleState;
 import org.eclipse.net4j.util.om.OMBundle;
 import org.eclipse.net4j.util.om.OMPlatform;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 import org.eclipse.net4j.util.om.trace.OMTracer;
 import org.eclipse.net4j.util.om.trace.PrintTraceHandler;
+import org.eclipse.net4j.util.registry.IRegistry;
+
+import junit.framework.TestCase;
 
 /**
- * <b>Transport Utilities</b>
+ * <b>Test Transport Utilities</b>
  * <p>
+ * An {@link IManagedContainer} is the part of net4j's runtime infrastructure that is responsible for managing a set of
+ * factories and post-processors.
  * 
  * <p>
+ * An {@link IManagedContainer} maintains three main registries:
+ * <ul>
+ * <li>Factory Registry</li>
+ * <li>Post Processor Registry</li>
+ * <li>Element Registry</li>
+ * </ul>
+ * 
+ * <p>
+ * The net4j runtime consults an {@link IManagedContainer} to obtain the factories used to construct
+ * {@link org.eclipse.net4j.acceptor.IAcceptor IAcceptor}s and {@link org.eclipse.net4j.connector.IConnector IConnector}
+ * s.
  * 
  */
 public class TransportUtilTest extends TestCase {
-
     public static final String BUNDLE_ID = "org.code.trek.net4j.tests.transportutiltest";
 
     public static final OMBundle BUNDLE = OMPlatform.INSTANCE.bundle(BUNDLE_ID, TransportUtilTest.class);
@@ -35,16 +56,73 @@ public class TransportUtilTest extends TestCase {
 
     private static final ContextTracer TEST_TRACER = new ContextTracer(DEBUG, TransportUtilTest.class);
 
-    public void testUtil() {
+    public void testDefaultManagedContainerState() {
+        IManagedContainer container = ContainerUtil.createContainer();
+        assertEquals(LifecycleState.INACTIVE, container.getLifecycleState());
+        System.out.println("container default lifecycle state: " + container.getLifecycleState().name());
+    }
+
+    public void testDefaultManagedContainerContent() {
+        IManagedContainer container = ContainerUtil.createContainer();
+        ReflectUtil.dump(container);
+
+        IRegistry<IFactoryKey, IFactory> factoryRegistry = container.getFactoryRegistry();
+        assertTrue(factoryRegistry.isEmpty());
+
+        List<IElementProcessor> postProcessorRegistry = container.getPostProcessors();
+        assertTrue(postProcessorRegistry.isEmpty());
+
+        // Accessing the element registry prior to container activation results in a life cycle exception
+        try {
+            @SuppressWarnings("unused")
+            Object[] elementRegistry = container.getElements();
+            fail();
+        } catch (LifecycleException e) {
+            System.out.println(e);
+        }
+    }
+
+    public void testDefaultManagedContainerContentAfterActivation() {
+        IManagedContainer container = ContainerUtil.createContainer();
+        container.activate();
+        ReflectUtil.dump(container);
+
+        IRegistry<IFactoryKey, IFactory> factoryRegistry = container.getFactoryRegistry();
+        assertTrue(factoryRegistry.isEmpty());
+
+        List<IElementProcessor> postProcessorRegistry = container.getPostProcessors();
+        assertTrue(postProcessorRegistry.isEmpty());
+
+        Object[] elementRegistry = container.getElements();
+        assertTrue(elementRegistry.length == 0);
+    }
+
+    public void testNet4jUtilPrepareContainer() {
         IManagedContainer container = ContainerUtil.createContainer();
 
-        // Initialize the container for use with the JVM protocol and activate it.
+        // Initialize the container for use with default contents
+        Net4jUtil.prepareContainer(container);
+        container.activate();
+
+        assertFalse(container.getFactoryRegistry().isEmpty());
+        assertFalse(container.getPostProcessors().isEmpty());
+        assertTrue(container.getElements().length == 0);
+    }
+
+    public void testTransportUtilPrepareContainer() {
+        IManagedContainer container = ContainerUtil.createContainer();
+
+        // Initialize the container for use with the test transport and activate it.
         Net4jUtil.prepareContainer(container);
         TransportUtil.prepareContainer(container);
 
-        ReflectUtil.dump(container);
+        container.activate();
+        
+        IFactory acceptorFactory = container.getFactory("org.eclipse.net4j.acceptors", "org.code.trek.transport");
+        assertNotNull(acceptorFactory);
 
-        // container.activate();
+        IFactory connectorFactory = container.getFactory("org.eclipse.net4j.connectors", "org.code.trek.transport");
+        assertNotNull(connectorFactory);
     }
 
     @Override

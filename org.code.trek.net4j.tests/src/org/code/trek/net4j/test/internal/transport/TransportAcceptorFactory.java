@@ -12,7 +12,7 @@ import org.eclipse.spi.net4j.AcceptorFactory;
  * A transport acceptor factory.
  */
 public class TransportAcceptorFactory extends AcceptorFactory {
-    public static final String TYPE = "transport";
+    public static final String TYPE = "org.code.trek.transport";
 
     public TransportAcceptorFactory() {
         super(TYPE);
