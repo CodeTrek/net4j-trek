@@ -6,10 +6,10 @@ package org.code.trek.net4j.tests;
 
 import java.util.Properties;
 
-import junit.framework.TestCase;
-
 import org.eclipse.net4j.util.om.LegacyUtil;
 import org.eclipse.net4j.util.om.OMPlatform;
+
+import junit.framework.TestCase;
 
 /**
  * <b>OM Platforam</b>
@@ -19,16 +19,11 @@ import org.eclipse.net4j.util.om.OMPlatform;
  * foundational (e.g., bundle) and cross-cutting (e.g., logging and tracking) abstractions.
  * <p>
  * 
- * According to the documentation <a href='https://wiki.eclipse.org/Net4j'>here</a>, the OM framework provides the
- * following abstractions:
+ * According to the documentation
+ * <a href='https://wiki.eclipse.org/Net4j'>here</a>, the OM framework provides the following abstractions:
  *
- * <ul>
- * <li>Platform abstraction (OSGi, Eclipse runtime, stand alone)</li>
- * <li>Bundle</li>
- * <li>Logging</li>
- * <li>Tracing</li>
- * <li>Preferences</li>
- * </ul>
+ * <ul> <li>Platform abstraction (OSGi, Eclipse runtime, stand alone)</li> <li>Bundle</li> <li>Logging</li>
+ * <li>Tracing</li> <li>Preferences</li> </ul>
  * 
  * and at least one other sub-framework called the "Progress monitoring framework".
  */

@@ -5,7 +5,6 @@
 package org.code.trek.net4j.tests;
 
 import java.util.List;
-import java.util.Map.Entry;
 
 import org.code.trek.net4j.test.transport.TransportUtil;
 import org.eclipse.net4j.Net4jUtil;
@@ -117,7 +116,7 @@ public class TransportUtilTest extends TestCase {
         TransportUtil.prepareContainer(container);
 
         container.activate();
-        
+
         IFactory acceptorFactory = container.getFactory("org.eclipse.net4j.acceptors", "org.code.trek.transport");
         assertNotNull(acceptorFactory);
 

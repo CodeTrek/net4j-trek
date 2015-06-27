@@ -6,10 +6,14 @@ package org.code.trek.net4j.tests;
 
 import org.code.trek.net4j.test.internal.transport.TransportAcceptor;
 import org.code.trek.net4j.test.internal.transport.TransportClientConnector;
+import org.code.trek.net4j.test.transport.TransportUtil;
+import org.eclipse.net4j.Net4jUtil;
 import org.eclipse.net4j.acceptor.IAcceptor;
 import org.eclipse.net4j.channel.IChannel;
 import org.eclipse.net4j.channel.IChannelMultiplexer;
 import org.eclipse.net4j.connector.IConnector;
+import org.eclipse.net4j.util.container.ContainerUtil;
+import org.eclipse.net4j.util.container.IManagedContainer;
 import org.eclipse.net4j.util.om.OMBundle;
 import org.eclipse.net4j.util.om.OMPlatform;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
@@ -39,14 +43,6 @@ public class ConnectorTest extends TestCase {
 
     private static final ContextTracer TEST_TRACER = new ContextTracer(DEBUG, ConnectorTest.class);
 
-    public void testConnector() {
-        // Create a server-side acceptor
-        IAcceptor acceptor = new TransportAcceptor();
-
-        // Create a client-side connector
-        IConnector connector = new TransportClientConnector();
-    }
-
     @Override
     protected void setUp() throws Exception {
         // Turn tracing on
@@ -62,6 +58,7 @@ public class ConnectorTest extends TestCase {
 
     @Override
     protected void tearDown() throws Exception {
+
         OMPlatform.INSTANCE.removeTraceHandler(PrintTraceHandler.CONSOLE);
         DEBUG.setEnabled(false);
         DEBUG_BUFFER.setEnabled(false);
@@ -69,5 +66,69 @@ public class ConnectorTest extends TestCase {
         OMPlatform.INSTANCE.setDebugging(false);
 
         super.tearDown();
+    }
+
+    public void testConnect() {
+
+        IManagedContainer container = ContainerUtil.createContainer();
+        Net4jUtil.prepareContainer(container);
+        TransportUtil.prepareContainer(container);
+        container.activate();
+
+        IAcceptor acceptor = Net4jUtil.getAcceptor(container, "org.code.trek.transport", "test.default.1");
+        assertTrue(acceptor instanceof TransportAcceptor);
+
+        assertEquals(0, acceptor.getAcceptedConnectors().length);
+
+        IConnector connector = Net4jUtil.getConnector(container, "org.code.trek.transport", "test.default.1");
+        assertTrue(connector instanceof TransportClientConnector);
+
+        System.out.println(acceptor.getAcceptedConnectors().length);
+
+        assertEquals(1, acceptor.getAcceptedConnectors().length);
+
+        connector.close();
+        acceptor.close();
+    }
+
+    public void testDisconnect() {
+        IManagedContainer container = ContainerUtil.createContainer();
+        Net4jUtil.prepareContainer(container);
+        TransportUtil.prepareContainer(container);
+        container.activate();
+
+        IAcceptor acceptor = Net4jUtil.getAcceptor(container, "org.code.trek.transport", "test.default.1");
+        assertTrue(acceptor instanceof TransportAcceptor);
+
+        assertEquals(0, acceptor.getAcceptedConnectors().length);
+
+        IConnector connector = Net4jUtil.getConnector(container, "org.code.trek.transport", "test.default.1");
+        assertTrue(connector instanceof TransportClientConnector);
+
+        System.out.println(acceptor.getAcceptedConnectors().length);
+
+        assertEquals(1, acceptor.getAcceptedConnectors().length);
+
+        connector.close();
+
+        assertEquals(0, acceptor.getAcceptedConnectors().length);
+
+        acceptor.close();
+    }
+
+    public void testOpenChannel() {
+        IManagedContainer container = ContainerUtil.createContainer();
+        Net4jUtil.prepareContainer(container);
+        TransportUtil.prepareContainer(container);
+        container.activate();
+
+        IAcceptor acceptor = Net4jUtil.getAcceptor(container, "org.code.trek.transport", "test.default.1");
+        assertTrue(acceptor instanceof TransportAcceptor);
+
+        IConnector connector = Net4jUtil.getConnector(container, "org.code.trek.transport", "test.default.1");
+        assertTrue(connector instanceof TransportClientConnector);
+
+        IChannel channel1 = connector.openChannel();
+        channel1.close();
     }
 }

@@ -4,38 +4,18 @@
  */
 package org.code.trek.net4j.tests;
 
-import junit.framework.TestCase;
-
 import org.eclipse.net4j.util.event.IEvent;
 import org.eclipse.net4j.util.event.IListener;
 import org.eclipse.net4j.util.fsm.FiniteStateMachine;
 import org.eclipse.net4j.util.fsm.ITransition;
+
+import junit.framework.TestCase;
 
 /**
  * These tests explore the net4j <code>FiniteStateMachine</code> concept.
  * <p>
  */
 public class FiniteStateMachineTest extends TestCase {
-
-    enum LightSwitchState {
-        UNKNOWN, ON, OFF
-    }
-
-    enum LightSwitchEvent {
-        INIT, TURN_ON, TURN_OFF
-    }
-
-    class Light {
-        LightSwitchState state = LightSwitchState.UNKNOWN;
-
-        void setState(LightSwitchState value) {
-            state = value;
-        }
-
-        LightSwitchState getState() {
-            return state;
-        }
-    }
 
     class InitLightTransition implements ITransition<LightSwitchState, LightSwitchEvent, Light, LightFsm> {
         @Override
@@ -46,6 +26,18 @@ public class FiniteStateMachineTest extends TestCase {
                     " light switch: " + subject.getState());
             // @formatter:on
             fsm.setState(subject, LightSwitchState.OFF);
+        }
+    }
+
+    class Light {
+        LightSwitchState state = LightSwitchState.UNKNOWN;
+
+        LightSwitchState getState() {
+            return state;
+        }
+
+        void setState(LightSwitchState value) {
+            state = value;
         }
     }
 
@@ -73,6 +65,44 @@ public class FiniteStateMachineTest extends TestCase {
         @Override
         protected void setState(Light subject, LightSwitchState state) {
             subject.setState(state);
+        }
+    }
+
+    enum LightSwitchEvent {
+        INIT, TURN_ON, TURN_OFF
+    }
+
+    enum LightSwitchState {
+        UNKNOWN, ON, OFF
+    }
+
+    public void testIllegalStateException() {
+        LightFsm fsm = new LightFsm();
+        Light light = new Light();
+
+        try {
+            fsm.process(light, LightSwitchEvent.TURN_ON, null);
+            fail();
+        } catch (IllegalStateException e) {
+            System.out.println(e.getMessage());
+        }
+
+        fsm.process(light, LightSwitchEvent.INIT, fsm);
+
+        try {
+            fsm.process(light, LightSwitchEvent.TURN_OFF, null);
+            fail();
+        } catch (IllegalStateException e) {
+            System.out.println(e.getMessage());
+        }
+
+        fsm.process(light, LightSwitchEvent.TURN_ON, fsm);
+
+        try {
+            fsm.process(light, LightSwitchEvent.TURN_ON, null);
+            fail();
+        } catch (IllegalStateException e) {
+            System.out.println(e.getMessage());
         }
     }
 
@@ -107,35 +137,5 @@ public class FiniteStateMachineTest extends TestCase {
 
         fsm.process(light, LightSwitchEvent.TURN_OFF, null);
         assertEquals(LightSwitchState.OFF, light.getState());
-    }
-
-    public void testIllegalStateException() {
-        LightFsm fsm = new LightFsm();
-        Light light = new Light();
-
-        try {
-            fsm.process(light, LightSwitchEvent.TURN_ON, null);
-            fail();
-        } catch (IllegalStateException e) {
-            System.out.println(e.getMessage());
-        }
-
-        fsm.process(light, LightSwitchEvent.INIT, fsm);
-
-        try {
-            fsm.process(light, LightSwitchEvent.TURN_OFF, null);
-            fail();
-        } catch (IllegalStateException e) {
-            System.out.println(e.getMessage());
-        }
-
-        fsm.process(light, LightSwitchEvent.TURN_ON, fsm);
-
-        try {
-            fsm.process(light, LightSwitchEvent.TURN_ON, null);
-            fail();
-        } catch (IllegalStateException e) {
-            System.out.println(e.getMessage());
-        }
     }
 }

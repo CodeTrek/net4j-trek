@@ -6,8 +6,6 @@ package org.code.trek.net4j.tests;
 
 import java.nio.ByteBuffer;
 
-import junit.framework.TestCase;
-
 import org.eclipse.net4j.buffer.BufferState;
 import org.eclipse.net4j.buffer.IBuffer;
 import org.eclipse.net4j.buffer.IBufferProvider;
@@ -17,6 +15,8 @@ import org.eclipse.net4j.util.om.OMPlatform;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 import org.eclipse.net4j.util.om.trace.OMTracer;
 import org.eclipse.net4j.util.om.trace.PrintTraceHandler;
+
+import junit.framework.TestCase;
 
 /**
  * <b>Buffers</b>

@@ -13,9 +13,8 @@ import org.eclipse.spi.net4j.InternalChannel;
 
 public abstract class TransportConnector extends Connector implements ITransportConnector {
 
-    @Override
-    public void multiplexChannel(InternalChannel channel) {
-    }
+    private TransportConnector peer;
+    private String name;
 
     @Override
     protected INegotiationContext createNegotiationContext() {
@@ -23,7 +22,41 @@ public abstract class TransportConnector extends Connector implements ITransport
     }
 
     @Override
+    protected void doActivate() throws Exception {
+        super.doActivate();
+        leaveConnecting();
+    }
+
+    @Override
+    protected void doBeforeActivate() throws Exception {
+        super.doBeforeActivate();
+        checkState(name, "name");
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public TransportConnector getPeer() {
+        return peer;
+    }
+
+    @Override
+    public void multiplexChannel(InternalChannel channel) {
+    }
+
+    @Override
     protected void registerChannelWithPeer(short channelID, long timeout, IProtocol<?> protocol)
             throws ChannelException {
+        
+        System.out.println("register channel with peer: " + channelID + " timout: " + timeout + " protocol: " + protocol);
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setPeer(TransportConnector peer) {
+        this.peer = peer;
     }
 }

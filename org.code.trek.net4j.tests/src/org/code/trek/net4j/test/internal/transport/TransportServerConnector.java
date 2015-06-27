@@ -4,7 +4,19 @@
  */
 package org.code.trek.net4j.test.internal.transport;
 
+import org.eclipse.net4j.util.lifecycle.LifecycleUtil;
+
 public class TransportServerConnector extends TransportConnector {
+
+    public TransportServerConnector(TransportClientConnector peer) {
+        setPeer(peer);
+    }
+
+    @Override
+    protected void doDeactivate() throws Exception {
+        LifecycleUtil.deactivateNoisy(getPeer());
+        super.doDeactivate();
+    }
 
     @Override
     public Location getLocation() {
