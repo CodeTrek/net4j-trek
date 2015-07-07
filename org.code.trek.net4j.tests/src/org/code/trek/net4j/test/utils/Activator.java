@@ -2,7 +2,7 @@
     Copyright (C) 2015 Jay Graham
     Distributed under the MIT License (see http://www.opensource.org/licenses/mit-license.php)
  */
-package org.code.trek.net4j.tests;
+package org.code.trek.net4j.test.utils;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;

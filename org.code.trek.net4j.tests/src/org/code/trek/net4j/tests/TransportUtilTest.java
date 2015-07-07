@@ -6,7 +6,7 @@ package org.code.trek.net4j.tests;
 
 import java.util.List;
 
-import org.code.trek.net4j.test.transport.TransportUtil;
+import org.code.trek.net4j.test.transport.toy.ToyTransportUtil;
 import org.eclipse.net4j.Net4jUtil;
 import org.eclipse.net4j.util.ReflectUtil;
 import org.eclipse.net4j.util.container.ContainerUtil;
@@ -53,12 +53,31 @@ public class TransportUtilTest extends TestCase {
 
     public static final OMTracer DEBUG_BUFFER = DEBUG.tracer("buffer");
 
+    @SuppressWarnings("unused")
     private static final ContextTracer TEST_TRACER = new ContextTracer(DEBUG, TransportUtilTest.class);
 
-    public void testDefaultManagedContainerState() {
-        IManagedContainer container = ContainerUtil.createContainer();
-        assertEquals(LifecycleState.INACTIVE, container.getLifecycleState());
-        System.out.println("container default lifecycle state: " + container.getLifecycleState().name());
+    @Override
+    protected void setUp() throws Exception {
+        // Turn tracing on
+        OMPlatform.INSTANCE.setDebugging(true);
+        BUNDLE.getDebugSupport().setDebugOption("debug", true);
+        DEBUG.setEnabled(true);
+        DEBUG_BUFFER.setEnabled(true);
+
+        OMPlatform.INSTANCE.addTraceHandler(PrintTraceHandler.CONSOLE);
+
+        super.setUp();
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        OMPlatform.INSTANCE.removeTraceHandler(PrintTraceHandler.CONSOLE);
+        DEBUG.setEnabled(false);
+        DEBUG_BUFFER.setEnabled(false);
+        BUNDLE.getDebugSupport().setDebugOption("debug", true);
+        OMPlatform.INSTANCE.setDebugging(false);
+
+        super.tearDown();
     }
 
     public void testDefaultManagedContainerContent() {
@@ -96,6 +115,12 @@ public class TransportUtilTest extends TestCase {
         assertTrue(elementRegistry.length == 0);
     }
 
+    public void testDefaultManagedContainerState() {
+        IManagedContainer container = ContainerUtil.createContainer();
+        assertEquals(LifecycleState.INACTIVE, container.getLifecycleState());
+        System.out.println("container default lifecycle state: " + container.getLifecycleState().name());
+    }
+
     public void testNet4jUtilPrepareContainer() {
         IManagedContainer container = ContainerUtil.createContainer();
 
@@ -113,7 +138,7 @@ public class TransportUtilTest extends TestCase {
 
         // Initialize the container for use with the test transport and activate it.
         Net4jUtil.prepareContainer(container);
-        TransportUtil.prepareContainer(container);
+        ToyTransportUtil.prepareContainer(container);
 
         container.activate();
 
@@ -122,29 +147,5 @@ public class TransportUtilTest extends TestCase {
 
         IFactory connectorFactory = container.getFactory("org.eclipse.net4j.connectors", "org.code.trek.transport");
         assertNotNull(connectorFactory);
-    }
-
-    @Override
-    protected void setUp() throws Exception {
-        // Turn tracing on
-        OMPlatform.INSTANCE.setDebugging(true);
-        BUNDLE.getDebugSupport().setDebugOption("debug", true);
-        DEBUG.setEnabled(true);
-        DEBUG_BUFFER.setEnabled(true);
-
-        OMPlatform.INSTANCE.addTraceHandler(PrintTraceHandler.CONSOLE);
-
-        super.setUp();
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        OMPlatform.INSTANCE.removeTraceHandler(PrintTraceHandler.CONSOLE);
-        DEBUG.setEnabled(false);
-        DEBUG_BUFFER.setEnabled(false);
-        BUNDLE.getDebugSupport().setDebugOption("debug", true);
-        OMPlatform.INSTANCE.setDebugging(false);
-
-        super.tearDown();
     }
 }

@@ -2,18 +2,18 @@
     Copyright (C) 2015 Jay Graham
     Distributed under the MIT License (see http://www.opensource.org/licenses/mit-license.php)
  */
-package org.code.trek.net4j.test.internal.transport;
+package org.code.trek.net4j.test.internal.transport.toy;
 
-import org.code.trek.net4j.test.transport.ITransportConnector;
+import org.code.trek.net4j.test.transport.toy.IToyTransportConnector;
 import org.eclipse.net4j.channel.ChannelException;
 import org.eclipse.net4j.protocol.IProtocol;
 import org.eclipse.net4j.util.security.INegotiationContext;
 import org.eclipse.spi.net4j.Connector;
 import org.eclipse.spi.net4j.InternalChannel;
 
-public abstract class TransportConnector extends Connector implements ITransportConnector {
+public abstract class ToyTransportConnector extends Connector implements IToyTransportConnector {
 
-    private TransportConnector peer;
+    private ToyTransportConnector peer;
     private String name;
 
     @Override
@@ -37,7 +37,7 @@ public abstract class TransportConnector extends Connector implements ITransport
         return name;
     }
 
-    public TransportConnector getPeer() {
+    public ToyTransportConnector getPeer() {
         return peer;
     }
 
@@ -48,15 +48,16 @@ public abstract class TransportConnector extends Connector implements ITransport
     @Override
     protected void registerChannelWithPeer(short channelID, long timeout, IProtocol<?> protocol)
             throws ChannelException {
-        
-        System.out.println("register channel with peer: " + channelID + " timout: " + timeout + " protocol: " + protocol);
+
+        System.out
+                .println("register channel with peer: " + channelID + " timout: " + timeout + " protocol: " + protocol);
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
-    public void setPeer(TransportConnector peer) {
+    public void setPeer(ToyTransportConnector peer) {
         this.peer = peer;
     }
 }

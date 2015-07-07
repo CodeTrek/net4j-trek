@@ -6,6 +6,7 @@ package org.code.trek.net4j.tests;
 
 import java.nio.ByteBuffer;
 
+import org.code.trek.net4j.test.utils.TestBufferProvider;
 import org.eclipse.net4j.buffer.BufferState;
 import org.eclipse.net4j.buffer.IBuffer;
 import org.eclipse.net4j.buffer.IBufferProvider;
@@ -40,6 +41,30 @@ public class BufferTest extends TestCase {
     public static final OMTracer DEBUG_BUFFER = DEBUG.tracer("buffer");
 
     private static final ContextTracer TEST_TRACER = new ContextTracer(DEBUG, BufferTest.class);
+
+    @Override
+    protected void setUp() throws Exception {
+        // Turn tracing on
+        OMPlatform.INSTANCE.setDebugging(true);
+        BUNDLE.getDebugSupport().setDebugOption("debug", true);
+        DEBUG.setEnabled(true);
+        DEBUG_BUFFER.setEnabled(true);
+
+        OMPlatform.INSTANCE.addTraceHandler(PrintTraceHandler.CONSOLE);
+
+        super.setUp();
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        OMPlatform.INSTANCE.removeTraceHandler(PrintTraceHandler.CONSOLE);
+        DEBUG.setEnabled(false);
+        DEBUG_BUFFER.setEnabled(false);
+        BUNDLE.getDebugSupport().setDebugOption("debug", true);
+        OMPlatform.INSTANCE.setDebugging(false);
+
+        super.tearDown();
+    }
 
     /**
      * Buffer providers determines a buffer's capacity. Buffer capacities are fixed.
@@ -177,29 +202,5 @@ public class BufferTest extends TestCase {
 
         TEST_TRACER.trace(buffer.getState().toString());
         assertEquals(BufferState.DISPOSED, buffer.getState());
-    }
-
-    @Override
-    protected void setUp() throws Exception {
-        // Turn tracing on
-        OMPlatform.INSTANCE.setDebugging(true);
-        BUNDLE.getDebugSupport().setDebugOption("debug", true);
-        DEBUG.setEnabled(true);
-        DEBUG_BUFFER.setEnabled(true);
-
-        OMPlatform.INSTANCE.addTraceHandler(PrintTraceHandler.CONSOLE);
-
-        super.setUp();
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        OMPlatform.INSTANCE.removeTraceHandler(PrintTraceHandler.CONSOLE);
-        DEBUG.setEnabled(false);
-        DEBUG_BUFFER.setEnabled(false);
-        BUNDLE.getDebugSupport().setDebugOption("debug", true);
-        OMPlatform.INSTANCE.setDebugging(false);
-
-        super.tearDown();
     }
 }

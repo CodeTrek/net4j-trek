@@ -11,6 +11,8 @@ import java.io.InputStreamReader;
 import java.util.Map.Entry;
 import java.util.Properties;
 
+import org.code.trek.net4j.test.utils.LogHandler;
+import org.code.trek.net4j.test.utils.TraceHandler;
 import org.eclipse.net4j.util.om.OMBundle;
 import org.eclipse.net4j.util.om.OMPlatform;
 import org.eclipse.net4j.util.om.log.OMLogger;
@@ -35,50 +37,17 @@ import junit.framework.TestCase;
  */
 public class OmBundleTest extends TestCase {
 
-    /**
-     * <b>Bundle Creation</b>
-     * <p>
-     * 
-     * The <code>OMPlatform.INSTANCE</code> singleton provides a factory method for creating bundles.
-     */
-    public void testOmBundleCreation() {
-        OMBundle bundle = OMPlatform.INSTANCE.bundle("org.code.trek.testOmBundleCreation", OmBundleTest.class);
-        assertNotNull(bundle);
+    @Override
+    protected void setUp() throws Exception {
+        // Turn debugging off at the platform level
+        OMPlatform.INSTANCE.setDebugging(false);
 
-        // The platform contains this bundle
-        assertTrue(bundle.getPlatform() == OMPlatform.INSTANCE);
-        assertTrue(bundle.getBundleID().equals("org.code.trek.testOmBundleCreation"));
+        super.setUp();
     }
 
-    /**
-     * <b>Bundle Base URL</b>
-     * <p>
-     * 
-     * A bundle's resources such as its configuration property file and state resources are contained in a resource at
-     * the location returned by the <code>getBaseURL()</code> method.
-     */
-    public void testOmBundleUrl() {
-        OMBundle bundle = OMPlatform.INSTANCE.bundle("org.code.trek.testOmBundleUrl", OmBundleTest.class);
-        System.out.println(bundle.getBaseURL());
-        System.out.println(bundle.getConfigFile().getPath());
-        System.out.println(bundle.getStateLocation());
-
-        // Get the bundle's configuration properties
-        Properties properties = bundle.getConfigProperties();
-
-        for (Entry<Object, Object> property : properties.entrySet()) {
-            System.out.println(property.getKey() + " = " + property.getValue());
-        }
-
-        // Custom bundle resources can be stored in a location relative to the bundle's base URL
-        try {
-            InputStream istream = bundle.getInputStream("/resources/org.code.trek.testOmBundleUrl.txt");
-            InputStreamReader streamReader = new InputStreamReader(istream);
-            BufferedReader reader = new BufferedReader(streamReader);
-            System.out.println(reader.readLine());
-        } catch (IOException e) {
-            System.err.println(e.getMessage());
-        }
+    @Override
+    protected void tearDown() throws Exception {
+        super.tearDown();
     }
 
     /**
@@ -101,6 +70,21 @@ public class OmBundleTest extends TestCase {
         logger.error("error, command code rejected");
 
         OMPlatform.INSTANCE.removeLogHandler(PrintLogHandler.CONSOLE);
+    }
+
+    /**
+     * <b>Bundle Creation</b>
+     * <p>
+     * 
+     * The <code>OMPlatform.INSTANCE</code> singleton provides a factory method for creating bundles.
+     */
+    public void testOmBundleCreation() {
+        OMBundle bundle = OMPlatform.INSTANCE.bundle("org.code.trek.testOmBundleCreation", OmBundleTest.class);
+        assertNotNull(bundle);
+
+        // The platform contains this bundle
+        assertTrue(bundle.getPlatform() == OMPlatform.INSTANCE);
+        assertTrue(bundle.getBundleID().equals("org.code.trek.testOmBundleCreation"));
     }
 
     /**
@@ -149,6 +133,41 @@ public class OmBundleTest extends TestCase {
     }
 
     /**
+     * <b>OMBundle Tracing Enablement</b>
+     * <p>
+     * 
+     * Use the <code>setEnabled()</code> method to enable/disable a tracer.
+     *
+     * <p>
+     * <b>Note</b>: The system property <code>org.eclipse.net4j.util.om.trace.Tracer.PROP_DISABLE_TRACING</code>
+     * enables/disables tracing globally. The value of this constant is
+     * <code>org.eclipse.net4j.util.om.trace.disable</code>.
+     */
+    public void testOmBundlelTracerEnablement() {
+        // Turn tracing on at the platform level
+        OMPlatform.INSTANCE.setDebugging(true);
+
+        OMBundle bundle = OMPlatform.INSTANCE.bundle("org.code.trek.testOmBundlelTracerEnablement", OmBundleTest.class);
+
+        // Turn tracing on at the bundle level
+        bundle.getDebugSupport().setDebugging(true);
+        bundle.getDebugSupport().setDebugOption("debug", true);
+
+        // Install a custom tracer
+        TraceHandler traceHandler = new TraceHandler();
+        OMPlatform.INSTANCE.addTraceHandler(traceHandler);
+
+        OMTracer tracer = bundle.tracer("t1");
+        tracer.setEnabled(false);
+        assertFalse(tracer.isEnabled());
+
+        tracer.setEnabled(true);
+        assertTrue(tracer.isEnabled());
+
+        OMPlatform.INSTANCE.removeTraceHandler(traceHandler);
+    }
+
+    /**
      * <b>OMBundle Tracing</b>
      * <p>
      * 
@@ -184,41 +203,6 @@ public class OmBundleTest extends TestCase {
 
         System.out.println(traceHandler.getMessages().get(0));
         assertEquals("photon locked", traceHandler.getMessages().get(0));
-        OMPlatform.INSTANCE.removeTraceHandler(traceHandler);
-    }
-
-    /**
-     * <b>OMBundle Tracing Enablement</b>
-     * <p>
-     * 
-     * Use the <code>setEnabled()</code> method to enable/disable a tracer.
-     *
-     * <p>
-     * <b>Note</b>: The system property <code>org.eclipse.net4j.util.om.trace.Tracer.PROP_DISABLE_TRACING</code>
-     * enables/disables tracing globally. The value of this constant is
-     * <code>org.eclipse.net4j.util.om.trace.disable</code>.
-     */
-    public void testOmBundlelTracerEnablement() {
-        // Turn tracing on at the platform level
-        OMPlatform.INSTANCE.setDebugging(true);
-
-        OMBundle bundle = OMPlatform.INSTANCE.bundle("org.code.trek.testOmBundlelTracerEnablement", OmBundleTest.class);
-
-        // Turn tracing on at the bundle level
-        bundle.getDebugSupport().setDebugging(true);
-        bundle.getDebugSupport().setDebugOption("debug", true);
-
-        // Install a custom tracer
-        TraceHandler traceHandler = new TraceHandler();
-        OMPlatform.INSTANCE.addTraceHandler(traceHandler);
-
-        OMTracer tracer = bundle.tracer("t1");
-        tracer.setEnabled(false);
-        assertFalse(tracer.isEnabled());
-
-        tracer.setEnabled(true);
-        assertTrue(tracer.isEnabled());
-
         OMPlatform.INSTANCE.removeTraceHandler(traceHandler);
     }
 
@@ -270,16 +254,34 @@ public class OmBundleTest extends TestCase {
         OMPlatform.INSTANCE.removeTraceHandler(traceHandler);
     }
 
-    @Override
-    protected void setUp() throws Exception {
-        // Turn debugging off at the platform level
-        OMPlatform.INSTANCE.setDebugging(false);
+    /**
+     * <b>Bundle Base URL</b>
+     * <p>
+     * 
+     * A bundle's resources such as its configuration property file and state resources are contained in a resource at
+     * the location returned by the <code>getBaseURL()</code> method.
+     */
+    public void testOmBundleUrl() {
+        OMBundle bundle = OMPlatform.INSTANCE.bundle("org.code.trek.testOmBundleUrl", OmBundleTest.class);
+        System.out.println(bundle.getBaseURL());
+        System.out.println(bundle.getConfigFile().getPath());
+        System.out.println(bundle.getStateLocation());
 
-        super.setUp();
-    }
+        // Get the bundle's configuration properties
+        Properties properties = bundle.getConfigProperties();
 
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
+        for (Entry<Object, Object> property : properties.entrySet()) {
+            System.out.println(property.getKey() + " = " + property.getValue());
+        }
+
+        // Custom bundle resources can be stored in a location relative to the bundle's base URL
+        try {
+            InputStream istream = bundle.getInputStream("/resources/org.code.trek.testOmBundleUrl.txt");
+            InputStreamReader streamReader = new InputStreamReader(istream);
+            BufferedReader reader = new BufferedReader(streamReader);
+            System.out.println(reader.readLine());
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+        }
     }
 }

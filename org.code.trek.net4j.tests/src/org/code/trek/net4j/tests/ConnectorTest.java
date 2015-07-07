@@ -4,9 +4,9 @@
  */
 package org.code.trek.net4j.tests;
 
-import org.code.trek.net4j.test.internal.transport.TransportAcceptor;
-import org.code.trek.net4j.test.internal.transport.TransportClientConnector;
-import org.code.trek.net4j.test.transport.TransportUtil;
+import org.code.trek.net4j.test.internal.transport.toy.ToyTransportAcceptor;
+import org.code.trek.net4j.test.internal.transport.toy.ToyTransportClientConnector;
+import org.code.trek.net4j.test.transport.toy.ToyTransportUtil;
 import org.eclipse.net4j.Net4jUtil;
 import org.eclipse.net4j.acceptor.IAcceptor;
 import org.eclipse.net4j.channel.IChannel;
@@ -29,8 +29,8 @@ import junit.framework.TestCase;
  * These tests explore the net4j {@link IConnector} concept.
  * <p>
  * 
- * An {@link IConnector} is an {@link IChannelMultiplexer}, which an {@link IChannel} container. An {@link IConnector}
- * also wraps the physical transport used to move data between a client an server.
+ * An {@link IConnector} is an {@link IChannelMultiplexer}, which is an {@link IChannel} container. An
+ * {@link IConnector} also wraps the physical transport used to move data between a client an server.
  */
 public class ConnectorTest extends TestCase {
 
@@ -41,6 +41,7 @@ public class ConnectorTest extends TestCase {
 
     public static final OMTracer DEBUG_BUFFER = DEBUG.tracer("buffer");
 
+    @SuppressWarnings("unused")
     private static final ContextTracer TEST_TRACER = new ContextTracer(DEBUG, ConnectorTest.class);
 
     @Override
@@ -72,16 +73,16 @@ public class ConnectorTest extends TestCase {
 
         IManagedContainer container = ContainerUtil.createContainer();
         Net4jUtil.prepareContainer(container);
-        TransportUtil.prepareContainer(container);
+        ToyTransportUtil.prepareContainer(container);
         container.activate();
 
         IAcceptor acceptor = Net4jUtil.getAcceptor(container, "org.code.trek.transport", "test.default.1");
-        assertTrue(acceptor instanceof TransportAcceptor);
+        assertTrue(acceptor instanceof ToyTransportAcceptor);
 
         assertEquals(0, acceptor.getAcceptedConnectors().length);
 
         IConnector connector = Net4jUtil.getConnector(container, "org.code.trek.transport", "test.default.1");
-        assertTrue(connector instanceof TransportClientConnector);
+        assertTrue(connector instanceof ToyTransportClientConnector);
 
         System.out.println(acceptor.getAcceptedConnectors().length);
 
@@ -94,16 +95,16 @@ public class ConnectorTest extends TestCase {
     public void testDisconnect() {
         IManagedContainer container = ContainerUtil.createContainer();
         Net4jUtil.prepareContainer(container);
-        TransportUtil.prepareContainer(container);
+        ToyTransportUtil.prepareContainer(container);
         container.activate();
 
-        IAcceptor acceptor = Net4jUtil.getAcceptor(container, "org.code.trek.transport", "test.default.1");
-        assertTrue(acceptor instanceof TransportAcceptor);
+        IAcceptor acceptor = Net4jUtil.getAcceptor(container, "org.code.trek.transport", "test.default.2");
+        assertTrue(acceptor instanceof ToyTransportAcceptor);
 
         assertEquals(0, acceptor.getAcceptedConnectors().length);
 
-        IConnector connector = Net4jUtil.getConnector(container, "org.code.trek.transport", "test.default.1");
-        assertTrue(connector instanceof TransportClientConnector);
+        IConnector connector = Net4jUtil.getConnector(container, "org.code.trek.transport", "test.default.2");
+        assertTrue(connector instanceof ToyTransportClientConnector);
 
         System.out.println(acceptor.getAcceptedConnectors().length);
 
@@ -119,14 +120,14 @@ public class ConnectorTest extends TestCase {
     public void testOpenChannel() {
         IManagedContainer container = ContainerUtil.createContainer();
         Net4jUtil.prepareContainer(container);
-        TransportUtil.prepareContainer(container);
+        ToyTransportUtil.prepareContainer(container);
         container.activate();
 
-        IAcceptor acceptor = Net4jUtil.getAcceptor(container, "org.code.trek.transport", "test.default.1");
-        assertTrue(acceptor instanceof TransportAcceptor);
+        IAcceptor acceptor = Net4jUtil.getAcceptor(container, "org.code.trek.transport", "test.default.3");
+        assertTrue(acceptor instanceof ToyTransportAcceptor);
 
-        IConnector connector = Net4jUtil.getConnector(container, "org.code.trek.transport", "test.default.1");
-        assertTrue(connector instanceof TransportClientConnector);
+        IConnector connector = Net4jUtil.getConnector(container, "org.code.trek.transport", "test.default.3");
+        assertTrue(connector instanceof ToyTransportClientConnector);
 
         IChannel channel1 = connector.openChannel();
         channel1.close();

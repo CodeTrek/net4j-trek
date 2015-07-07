@@ -30,48 +30,16 @@ import junit.framework.TestCase;
 public class OmPlatformTest extends TestCase {
 
     /**
-     * <b>Singleton Pattern</b>
+     * <b>OM Platform Command Line Arguments</b>
      * <p>
-     * The interface to net4j's OM framework is specified here: {@link org.eclipse.net4j.util.om.OMPlatform}.
-     * Implementors of this interface are either abstract classes or classes with private constructors, enabling the
-     * <code>OMPlatform</code> interface to enforce a singleton pattern via its <code>INSTANCE</code> member variable.
      */
-    public void testOmPlatformSingleton() {
-        OMPlatform omPlatform1 = OMPlatform.INSTANCE;
-        OMPlatform omPlatform2 = OMPlatform.INSTANCE;
-
-        assertTrue(omPlatform1 == omPlatform2);
-        assertTrue(omPlatform1.equals(omPlatform2));
-    }
-
-    /**
-     * <b>OSGi vs Legacy Platform Creation</b>
-     * <p>
-     * 
-     * If net4j is running inside of an OSGi runtime container, then activation of the {@link org.eclipse.net4j.util}
-     * bundle injects the bundle context into {@link org.eclipse.net4j.internal.util.bundle.AbstractPlatform}. If a
-     * bundle context is present when the <code>OMPlatform</code> is created (by calling
-     * <code>OMPlatform.INSTANCE</code>), then an OSGi platform is created, otherwise a legacy platform is created.
-     */
-    public void testOmPlatformLegacy() {
+    public void testOmPlatformCommandLineArgs() {
         OMPlatform omPlatform = OMPlatform.INSTANCE;
+        LegacyUtil.setCommandLineArgs(new String[] { "arg1", "arg2", "arg3" });
 
-        // This unit test is not running inside an OSGi container, therefore the OM platform defaults the "legacy",
-        // meaning the plain-old-java (POJ) runtime and no eclipse OSGi platform extension registry is available.
-        assertFalse(omPlatform.isOSGiRunning());
-        assertFalse(omPlatform.isExtensionRegistryAvailable());
-    }
-
-    /**
-     * <b>OM Platform State Folder</b>
-     * <p>
-     * 
-     * The system property <code>net4j.state</code> designates the folder used to hold net4j OMPlatform state files.
-     */
-    public void testOmPlatformStateFolder() {
-        System.setProperty("net4j.state", ".");
-        OMPlatform omPlatform = OMPlatform.INSTANCE;
-        System.out.println("State folder: " + omPlatform.getStateFolder().getAbsolutePath());
+        for (String arg : omPlatform.getCommandLineArgs()) {
+            System.out.println("Command line arg: " + arg);
+        }
     }
 
     /**
@@ -91,15 +59,48 @@ public class OmPlatformTest extends TestCase {
     }
 
     /**
-     * <b>OM Platform Command Line Arguments</b>
+     * <b>OSGi vs Legacy Platform Creation</b>
      * <p>
+     * 
+     * If net4j is running inside of an OSGi runtime container, then activation of the {@link org.eclipse.net4j.util}
+     * bundle injects the bundle context into {@link org.eclipse.net4j.internal.util.bundle.AbstractPlatform}. If a
+     * bundle context is present when the <code>OMPlatform</code> is created (by calling
+     * <code>OMPlatform.INSTANCE</code>), then an OSGi platform is created, otherwise a legacy platform is created.
      */
-    public void testOmPlatformCommandLineArgs() {
+    @SuppressWarnings("restriction")
+    public void testOmPlatformLegacy() {
         OMPlatform omPlatform = OMPlatform.INSTANCE;
-        LegacyUtil.setCommandLineArgs(new String[] { "arg1", "arg2", "arg3" });
 
-        for (String arg : omPlatform.getCommandLineArgs()) {
-            System.out.println("Command line arg: " + arg);
-        }
+        // This unit test is not running inside an OSGi container, therefore the OM platform defaults the "legacy",
+        // meaning the plain-old-java (POJ) runtime and no eclipse OSGi platform extension registry is available.
+        assertFalse(omPlatform.isOSGiRunning());
+        assertFalse(omPlatform.isExtensionRegistryAvailable());
+    }
+
+    /**
+     * <b>Singleton Pattern</b>
+     * <p>
+     * The interface to net4j's OM framework is specified here: {@link org.eclipse.net4j.util.om.OMPlatform}.
+     * Implementors of this interface are either abstract classes or classes with private constructors, enabling the
+     * <code>OMPlatform</code> interface to enforce a singleton pattern via its <code>INSTANCE</code> member variable.
+     */
+    public void testOmPlatformSingleton() {
+        OMPlatform omPlatform1 = OMPlatform.INSTANCE;
+        OMPlatform omPlatform2 = OMPlatform.INSTANCE;
+
+        assertTrue(omPlatform1 == omPlatform2);
+        assertTrue(omPlatform1.equals(omPlatform2));
+    }
+
+    /**
+     * <b>OM Platform State Folder</b>
+     * <p>
+     * 
+     * The system property <code>net4j.state</code> designates the folder used to hold net4j OMPlatform state files.
+     */
+    public void testOmPlatformStateFolder() {
+        System.setProperty("net4j.state", ".");
+        OMPlatform omPlatform = OMPlatform.INSTANCE;
+        System.out.println("State folder: " + omPlatform.getStateFolder().getAbsolutePath());
     }
 }

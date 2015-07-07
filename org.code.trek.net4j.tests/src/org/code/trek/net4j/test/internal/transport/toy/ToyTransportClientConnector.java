@@ -2,18 +2,18 @@
     Copyright (C) 2015 Jay Graham
     Distributed under the MIT License (see http://www.opensource.org/licenses/mit-license.php)
  */
-package org.code.trek.net4j.test.internal.transport;
+package org.code.trek.net4j.test.internal.transport.toy;
 
 import org.eclipse.net4j.util.lifecycle.LifecycleUtil;
 
-public class TransportClientConnector extends TransportConnector {
+public class ToyTransportClientConnector extends ToyTransportConnector {
 
-    private TransportAcceptor acceptor;
+    private ToyTransportAcceptor acceptor;
 
     @Override
     protected void doActivate() throws Exception {
         super.doActivate();
-        TransportServerConnector peer = acceptor.handleAccept(this);
+        ToyTransportServerConnector peer = acceptor.handleAccept(this);
         setPeer(peer);
     }
 
@@ -23,8 +23,8 @@ public class TransportClientConnector extends TransportConnector {
 
         // Use the connector name to lookup a peer acceptor in the Transport acceptor registry
         String name = getName();
-        acceptor = TransportAcceptorRegistry.INSTANCE.getAcceptor(name);
-        
+        acceptor = ToyTransportAcceptorRegistry.INSTANCE.getAcceptor(name);
+
         // No peer acceptor found?
         if (acceptor == null) {
             throw new IllegalStateException("Transport acceptor not found: " + name);

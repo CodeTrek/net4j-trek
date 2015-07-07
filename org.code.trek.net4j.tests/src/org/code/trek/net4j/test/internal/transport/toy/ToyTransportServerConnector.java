@@ -2,13 +2,13 @@
     Copyright (C) 2015 Jay Graham
     Distributed under the MIT License (see http://www.opensource.org/licenses/mit-license.php)
  */
-package org.code.trek.net4j.test.internal.transport;
+package org.code.trek.net4j.test.internal.transport.toy;
 
 import org.eclipse.net4j.util.lifecycle.LifecycleUtil;
 
-public class TransportServerConnector extends TransportConnector {
+public class ToyTransportServerConnector extends ToyTransportConnector {
 
-    public TransportServerConnector(TransportClientConnector peer) {
+    public ToyTransportServerConnector(ToyTransportClientConnector peer) {
         setPeer(peer);
     }
 

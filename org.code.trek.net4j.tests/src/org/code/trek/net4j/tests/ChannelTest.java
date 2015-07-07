@@ -6,7 +6,8 @@ package org.code.trek.net4j.tests;
 
 import java.nio.ByteBuffer;
 
-import org.code.trek.net4j.test.internal.transport.TransportChannel;
+import org.code.trek.net4j.test.internal.transport.toy.ToyTransportChannel;
+import org.code.trek.net4j.test.utils.TestBufferProvider;
 import org.eclipse.net4j.buffer.IBuffer;
 import org.eclipse.net4j.buffer.IBufferHandler;
 import org.eclipse.net4j.buffer.IBufferProvider;
@@ -16,6 +17,7 @@ import org.eclipse.net4j.util.om.OMPlatform;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 import org.eclipse.net4j.util.om.trace.OMTracer;
 import org.eclipse.net4j.util.om.trace.PrintTraceHandler;
+import org.junit.Assert;
 
 import junit.framework.TestCase;
 
@@ -39,7 +41,32 @@ public class ChannelTest extends TestCase {
 
     public static final OMTracer DEBUG_BUFFER = DEBUG.tracer("buffer");
 
+    @SuppressWarnings("unused")
     private static final ContextTracer TEST_TRACER = new ContextTracer(DEBUG, ChannelTest.class);
+
+    @Override
+    protected void setUp() throws Exception {
+        // Turn tracing on
+        OMPlatform.INSTANCE.setDebugging(true);
+        BUNDLE.getDebugSupport().setDebugOption("debug", true);
+        DEBUG.setEnabled(true);
+        DEBUG_BUFFER.setEnabled(true);
+
+        OMPlatform.INSTANCE.addTraceHandler(PrintTraceHandler.CONSOLE);
+
+        super.setUp();
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        OMPlatform.INSTANCE.removeTraceHandler(PrintTraceHandler.CONSOLE);
+        DEBUG.setEnabled(false);
+        DEBUG_BUFFER.setEnabled(false);
+        BUNDLE.getDebugSupport().setDebugOption("debug", true);
+        OMPlatform.INSTANCE.setDebugging(false);
+
+        super.tearDown();
+    }
 
     /**
      * Buffer providers determines a buffer's capacity. Buffer capacities are fixed.
@@ -48,10 +75,10 @@ public class ChannelTest extends TestCase {
         // Create a l
         final short CHANNEL_ID = 11;
 
-        TransportChannel peer1 = new TransportChannel();
+        ToyTransportChannel peer1 = new ToyTransportChannel();
         peer1.setID(CHANNEL_ID);
 
-        TransportChannel peer2 = new TransportChannel();
+        ToyTransportChannel peer2 = new ToyTransportChannel();
         peer2.setID(CHANNEL_ID);
 
         peer1.setPeer(peer2);
@@ -78,29 +105,7 @@ public class ChannelTest extends TestCase {
         payload.putShort((short) 7);
 
         peer1.sendBuffer(buffer);
-    }
-
-    @Override
-    protected void setUp() throws Exception {
-        // Turn tracing on
-        OMPlatform.INSTANCE.setDebugging(true);
-        BUNDLE.getDebugSupport().setDebugOption("debug", true);
-        DEBUG.setEnabled(true);
-        DEBUG_BUFFER.setEnabled(true);
-
-        OMPlatform.INSTANCE.addTraceHandler(PrintTraceHandler.CONSOLE);
-
-        super.setUp();
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        OMPlatform.INSTANCE.removeTraceHandler(PrintTraceHandler.CONSOLE);
-        DEBUG.setEnabled(false);
-        DEBUG_BUFFER.setEnabled(false);
-        BUNDLE.getDebugSupport().setDebugOption("debug", true);
-        OMPlatform.INSTANCE.setDebugging(false);
-
-        super.tearDown();
+        
+        Assert.assertEquals(6, (payload.position() - initPosition));
     }
 }

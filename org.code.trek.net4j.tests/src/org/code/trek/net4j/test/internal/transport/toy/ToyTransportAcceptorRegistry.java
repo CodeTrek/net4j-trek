@@ -2,26 +2,30 @@
     Copyright (C) 2015 Jay Graham
     Distributed under the MIT License (see http://www.opensource.org/licenses/mit-license.php)
  */
-package org.code.trek.net4j.test.internal.transport;
+package org.code.trek.net4j.test.internal.transport.toy;
 
-import org.code.trek.net4j.test.transport.ITransportAcceptor;
+import org.code.trek.net4j.test.transport.toy.IToyTransportAcceptor;
 import org.eclipse.net4j.util.registry.HashMapRegistry;
 import org.eclipse.net4j.util.registry.IRegistry;
 
 /**
  * A singleton that tracks all Transport acceptors.
  */
-public class TransportAcceptorRegistry {
+public class ToyTransportAcceptorRegistry {
     // @Singleton
-    public static final TransportAcceptorRegistry INSTANCE = new TransportAcceptorRegistry();
+    public static final ToyTransportAcceptorRegistry INSTANCE = new ToyTransportAcceptorRegistry();
 
-    private IRegistry<String, ITransportAcceptor> acceptorRegistry = new HashMapRegistry<String, ITransportAcceptor>();
+    private IRegistry<String, IToyTransportAcceptor> acceptorRegistry = new HashMapRegistry<String, IToyTransportAcceptor>();
 
-    public TransportAcceptor getAcceptor(String name) {
-        return (TransportAcceptor) acceptorRegistry.get(name);
+    public boolean deregisterAcceptor(ToyTransportAcceptor acceptor) {
+        return acceptorRegistry.remove(acceptor.getName()) != null;
     }
 
-    public boolean registerAcceptor(TransportAcceptor acceptor) {
+    public ToyTransportAcceptor getAcceptor(String name) {
+        return (ToyTransportAcceptor) acceptorRegistry.get(name);
+    }
+
+    public boolean registerAcceptor(ToyTransportAcceptor acceptor) {
         String name = acceptor.getName();
         if (!acceptorRegistry.containsKey(name)) {
             acceptorRegistry.put(name, acceptor);
@@ -30,9 +34,5 @@ public class TransportAcceptorRegistry {
         }
 
         return false;
-    }
-
-    public boolean deregisterAcceptor(TransportAcceptor acceptor) {
-        return acceptorRegistry.remove(acceptor.getName()) != null;
     }
 }
