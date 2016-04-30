@@ -32,4 +32,12 @@ public interface R2Method {
      *         expires.
      */
     public InputStream getResponse(int timeOutMs);
+
+    /**
+     * Set the data to be delivered with a request.
+     * 
+     * @param payload
+     *            the request's data payload.
+     */
+    public void setPayload(byte[] payload);
 }
