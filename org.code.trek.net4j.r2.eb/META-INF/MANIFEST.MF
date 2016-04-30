@@ -1,0 +1,27 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Event Bus R2
+Bundle-SymbolicName: org.code.trek.net4j.r2.eb
+Bundle-Version: 1.0.0
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: org.code.trek.net4j.r2;bundle-version="1.0.0"
+Bundle-ClassPath: libs/guava-19.0.jar,
+ .
+Export-Package: com.google.common.annotations,
+ com.google.common.base,
+ com.google.common.base.internal,
+ com.google.common.cache,
+ com.google.common.collect,
+ com.google.common.escape,
+ com.google.common.eventbus,
+ com.google.common.hash,
+ com.google.common.html,
+ com.google.common.io,
+ com.google.common.math,
+ com.google.common.net,
+ com.google.common.primitives,
+ com.google.common.reflect,
+ com.google.common.util.concurrent,
+ com.google.common.xml,
+ com.google.thirdparty.publicsuffix,
+ org.code.trek.net4j.r2.eb
