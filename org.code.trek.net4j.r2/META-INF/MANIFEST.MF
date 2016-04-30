@@ -4,3 +4,5 @@ Bundle-Name: Request Reply (R2) Communcation Pattern Abstraction
 Bundle-SymbolicName: org.code.trek.net4j.r2
 Bundle-Version: 1.0.0
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Export-Package: org.code.trek.net4j.r2.client,
+ org.code.trek.net4j.r2.servlet
