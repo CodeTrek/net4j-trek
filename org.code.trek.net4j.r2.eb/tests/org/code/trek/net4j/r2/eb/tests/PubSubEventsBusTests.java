@@ -42,6 +42,18 @@ public class PubSubEventsBusTests {
     }
 
     @Test
+    public void testGetDomainPartition() {
+        PubSubEventBus.getInstance().reset();
+        EventBus domain = PubSubEventBus.getInstance().createDomain(1).createPartition("/");
+        Assert.assertNotNull(domain);
+
+        EventBus domainPartition = PubSubEventBus.getInstance().getDomain(1).getPartition("/");
+        Assert.assertNotNull(domainPartition);
+
+        Assert.assertTrue(domain == domainPartition);
+    }
+
+    @Test
     public void testGetDomainPartitionException() {
         PubSubEventBus.getInstance().reset();
         boolean exceptionThrown = false;
@@ -68,17 +80,5 @@ public class PubSubEventsBusTests {
 
         Assert.assertNotNull(domainPartition);
         Assert.assertTrue(exceptionThrown);
-    }
-
-    @Test
-    public void testGetDomainPartition() {
-        PubSubEventBus.getInstance().reset();
-        EventBus domain = PubSubEventBus.getInstance().createDomain(1).createPartition("/");
-        Assert.assertNotNull(domain);
-
-        EventBus domainPartition = PubSubEventBus.getInstance().getDomain(1).getPartition("/");
-        Assert.assertNotNull(domainPartition);
-
-        Assert.assertTrue(domain == domainPartition);
     }
 }
