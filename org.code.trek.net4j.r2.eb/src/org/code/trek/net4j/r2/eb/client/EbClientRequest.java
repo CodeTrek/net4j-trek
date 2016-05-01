@@ -1,3 +1,10 @@
+/*
+ *  Copyright (c) 2016 Jay Graham
+ *  All rights reserved. This program and the accompanying
+ *  materials are made available under the terms of the MIT License
+ *  (see http://www.opensource.org/licenses/mit-license.php)
+ */
+
 package org.code.trek.net4j.r2.eb.client;
 
 import java.util.concurrent.CountDownLatch;
@@ -5,6 +12,11 @@ import java.util.concurrent.TimeUnit;
 
 import org.code.trek.net4j.r2.eb.ServletResponse;
 
+/**
+ * An EventBus based client request.
+ * 
+ * @author jgraham
+ */
 public class EbClientRequest implements ServletResponse {
     private byte[] response = null;
     private final CountDownLatch latch = new CountDownLatch(1);

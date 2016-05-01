@@ -9,6 +9,15 @@ package org.code.trek.net4j.r2.eb;
 
 /**
  * EventBus pub/sub resource locator (RL).
+ * <p>
+ * The format is <code>[domain id]:[path]</code>
+ * <p>
+ * Examples:
+ * <p>
+ * <ul>
+ * <li><code>1:/</code></li>
+ * <li><code>5:/model/repository</code></li>
+ * </ul>
  * 
  * @author jgraham
  */
