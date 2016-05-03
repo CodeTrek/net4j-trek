@@ -11,13 +11,14 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
 import org.code.trek.net4j.r2.eb.client.EbClient;
+import org.code.trek.net4j.r2.servlet.R2ServletRequest;
 
 /**
  * Represents an {@link EbClient} server request.
  * 
  * @author jgraham
  */
-public class EbServletRequest {
+public class EbServletRequest implements R2ServletRequest {
     private final ByteArrayInputStream inputStream;
 
     public EbServletRequest(byte[] data) {

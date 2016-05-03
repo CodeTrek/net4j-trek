@@ -10,11 +10,12 @@ package org.code.trek.net4j.r2.eb.server;
 import java.io.IOException;
 
 import org.code.trek.net4j.r2.eb.client.EbClientRequest;
+import org.code.trek.net4j.r2.servlet.R2Servlet;
 
 import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
 
-public abstract class EbServlet {
+public abstract class EbServlet implements R2Servlet {
     @Subscribe
     @AllowConcurrentEvents
     public void handleClientRequest(EbClientRequest requestResponse) throws IOException {
@@ -23,6 +24,4 @@ public abstract class EbServlet {
 
         doRequest(request, response);
     }
-
-    abstract protected void doRequest(EbServletRequest request, EbServletResponse response) throws IOException;
 }

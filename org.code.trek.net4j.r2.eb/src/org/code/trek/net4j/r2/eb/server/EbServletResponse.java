@@ -19,13 +19,14 @@ import java.io.OutputStream;
 
 import org.code.trek.net4j.r2.eb.ServletResponse;
 import org.code.trek.net4j.r2.eb.client.EbClient;
+import org.code.trek.net4j.r2.servlet.R2ServletResponse;
 
 /**
  * Servlet response object used to deliver a response to an {@link EbClient} request.
  * 
  * @author jgraham
  */
-public class EbServletResponse {
+public class EbServletResponse implements R2ServletResponse {
     private static class ServletOutputStream extends ByteArrayOutputStream {
 
         private ServletResponse response;
@@ -46,6 +47,7 @@ public class EbServletResponse {
         outputStream = new ServletOutputStream(response);
     }
 
+    @Override
     public OutputStream getOutputStream() {
         return outputStream;
     }

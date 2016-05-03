@@ -5,13 +5,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.code.trek.net4j.r2.eb.server.EbServlet;
-import org.code.trek.net4j.r2.eb.server.EbServletRequest;
-import org.code.trek.net4j.r2.eb.server.EbServletResponse;
+import org.code.trek.net4j.r2.servlet.R2ServletRequest;
+import org.code.trek.net4j.r2.servlet.R2ServletResponse;
 
 public class EchoServlet extends EbServlet {
 
     @Override
-    protected void doRequest(EbServletRequest request, EbServletResponse response) throws IOException {
+    public void doRequest(R2ServletRequest request, R2ServletResponse response) throws IOException {
         InputStream in = request.getInputStream();
         OutputStream out = response.getOutputStream();
 
