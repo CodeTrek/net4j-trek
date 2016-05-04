@@ -10,15 +10,11 @@ package org.code.trek.net4j.r2.servlet;
 import java.io.IOException;
 
 /**
- * Request/response (R2) servlet capable of responding to R2 client requests.
+ * An R2 client request handler.
  * 
  * @author jgraham
- * 
  */
-public interface R2Servlet {
-    public final String PRODUCT_GROUP = "org.code.trek.net4j.r2.servlet";
-    public final String TYPE = "servlet";
-
+public interface R2Handler {
     /**
      * R2 client request handler.
      * 
@@ -30,12 +26,4 @@ public interface R2Servlet {
      *             if the R2 client request can not be handled.
      */
     public void doRequest(R2ServletRequest request, R2ServletResponse response) throws IOException;
-
-    /**
-     * Requests are forwarded to the given handler.
-     * 
-     * @param handler
-     *            the receiver of forwarded requests.
-     */
-    public void setRequestHandler(R2Handler handler);
 }

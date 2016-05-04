@@ -5,7 +5,7 @@
  *  (see http://www.opensource.org/licenses/mit-license.php)
  */
 
-package org.code.trek.net4j.r2.eb.server;
+package org.code.trek.net4j.r2.eb.server.impl;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;

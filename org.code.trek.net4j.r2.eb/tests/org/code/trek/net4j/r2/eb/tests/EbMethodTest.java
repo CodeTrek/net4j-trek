@@ -6,6 +6,7 @@ import java.io.InputStream;
 
 import org.code.trek.net4j.r2.eb.PubSubEventBus;
 import org.code.trek.net4j.r2.eb.client.EbMethod;
+import org.code.trek.net4j.r2.eb.server.impl.EbServlet;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -33,7 +34,8 @@ public class EbMethodTest {
     @Test
     public void testDdsMethodDrl() throws IOException {
         PubSubEventBus.getInstance().reset();
-        PubSubEventBus.getInstance().createDomain(5).createPartition("/a/b/c").register(new EchoServlet());
+        EbServlet ebServlet = new EbServlet("5:/a/b/c");
+        ebServlet.setRequestHandler(new EchoServlet());
 
         byte[] payLoad = new byte[] { 5, 4, 3, 2, 1 };
 
@@ -52,7 +54,10 @@ public class EbMethodTest {
     @Test
     public void testEbMethod() throws IOException {
         PubSubEventBus.getInstance().reset();
-        PubSubEventBus.getInstance().createDomain(5).createPartition("/").register(new EchoServlet());
+        EbServlet ebServlet = new EbServlet("5:/");
+        ebServlet.setRequestHandler(new EchoServlet());
+
+        // PubSubEventBus.getInstance().createDomain(5).createPartition("/").register(new EchoServlet());
 
         byte[] payLoad = new byte[] { 5, 4, 3, 2, 1 };
 

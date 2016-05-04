@@ -4,7 +4,8 @@ Bundle-Name: Event Bus R2
 Bundle-SymbolicName: org.code.trek.net4j.r2.eb
 Bundle-Version: 1.0.0
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Require-Bundle: org.code.trek.net4j.r2;bundle-version="1.0.0"
+Require-Bundle: org.code.trek.net4j.r2;bundle-version="1.0.0",
+ org.eclipse.net4j;bundle-version="4.4.1"
 Bundle-ClassPath: libs/guava-19.0.jar,
  .
 Export-Package: com.google.common.annotations,

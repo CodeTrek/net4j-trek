@@ -3,6 +3,7 @@ package org.code.trek.net4j.r2.eb.tests;
 
 import org.code.trek.net4j.r2.eb.PubSubEventBus;
 import org.code.trek.net4j.r2.eb.client.EbClientRequest;
+import org.code.trek.net4j.r2.eb.server.impl.EbServlet;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -30,8 +31,8 @@ public class EbServletTest {
     @Test
     public void testServlet() {
         PubSubEventBus.getInstance().reset();
-        PubSubEventBus.getInstance().createDomain(5).createPartition("/");
-        PubSubEventBus.getInstance().getDomain(5).getPartition("/").register(new EchoServlet());
+        EbServlet ebServlet = new EbServlet("5:/");
+        ebServlet.setRequestHandler(new EchoServlet());
 
         final byte[] payLoad = new byte[] { 5, 4, 3, 2, 1 };
 
