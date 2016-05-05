@@ -10,7 +10,7 @@ package org.code.trek.net4j.r2.eb.server.impl;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
-import org.code.trek.net4j.r2.eb.client.EbClient;
+import org.code.trek.net4j.r2.eb.client.impl.EbClient;
 import org.code.trek.net4j.r2.servlet.R2ServletRequest;
 
 /**

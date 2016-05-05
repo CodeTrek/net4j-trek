@@ -2,7 +2,7 @@
 package org.code.trek.net4j.r2.eb.tests;
 
 import org.code.trek.net4j.r2.eb.PubSubEventBus;
-import org.code.trek.net4j.r2.eb.client.EbClientRequest;
+import org.code.trek.net4j.r2.eb.client.impl.EbClientRequest;
 import org.code.trek.net4j.r2.eb.server.impl.EbServlet;
 import org.junit.After;
 import org.junit.AfterClass;

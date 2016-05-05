@@ -5,7 +5,7 @@
  *  (see http://www.opensource.org/licenses/mit-license.php)
  */
 
-package org.code.trek.net4j.r2.eb.client;
+package org.code.trek.net4j.r2.eb.client.impl;
 
 import org.code.trek.net4j.r2.client.R2Client;
 import org.code.trek.net4j.r2.client.R2Method;
@@ -15,8 +15,16 @@ import org.code.trek.net4j.r2.client.R2Method;
  */
 public class EbClient implements R2Client {
 
+    public EbClient(String description) {
+    }
+
     @Override
     public int execute(R2Method method) {
         return method.execute();
+    }
+
+    @Override
+    public R2Method newMethod(String method) {
+        return new EbMethod(method);
     }
 }

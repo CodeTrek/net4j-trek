@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.code.trek.net4j.r2.eb.PubSubEventBus;
-import org.code.trek.net4j.r2.eb.client.EbMethod;
+import org.code.trek.net4j.r2.eb.client.impl.EbMethod;
 import org.code.trek.net4j.r2.eb.server.impl.EbServlet;
 import org.junit.After;
 import org.junit.AfterClass;

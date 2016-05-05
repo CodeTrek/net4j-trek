@@ -25,6 +25,5 @@ Export-Package: com.google.common.annotations,
  com.google.common.util.concurrent,
  com.google.common.xml,
  com.google.thirdparty.publicsuffix,
- org.code.trek.net4j.r2.eb,
  org.code.trek.net4j.r2.eb.client,
  org.code.trek.net4j.r2.eb.server

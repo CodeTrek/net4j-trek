@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import org.code.trek.net4j.r2.eb.ServletResponse;
-import org.code.trek.net4j.r2.eb.client.EbClient;
+import org.code.trek.net4j.r2.eb.client.impl.EbClient;
 import org.code.trek.net4j.r2.servlet.R2ServletResponse;
 
 /**

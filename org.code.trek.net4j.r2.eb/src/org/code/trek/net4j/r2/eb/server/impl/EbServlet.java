@@ -11,7 +11,7 @@ import java.io.IOException;
 
 import org.code.trek.net4j.r2.eb.PubSubEventBus;
 import org.code.trek.net4j.r2.eb.RL;
-import org.code.trek.net4j.r2.eb.client.EbClientRequest;
+import org.code.trek.net4j.r2.eb.client.impl.EbClientRequest;
 import org.code.trek.net4j.r2.servlet.R2Handler;
 import org.code.trek.net4j.r2.servlet.R2Servlet;
 import org.code.trek.net4j.r2.servlet.R2ServletRequest;

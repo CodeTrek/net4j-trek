@@ -5,7 +5,7 @@
  *  (see http://www.opensource.org/licenses/mit-license.php)
  */
 
-package org.code.trek.net4j.r2.eb.client;
+package org.code.trek.net4j.r2.eb.client.impl;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -25,8 +25,7 @@ public class EbMethod implements R2Method {
     private final String partition;
 
     public EbMethod(int domain) {
-        this.domain = domain;
-        this.partition = "/";
+        this(domain + ":/");
     }
 
     public EbMethod(String drlString) {

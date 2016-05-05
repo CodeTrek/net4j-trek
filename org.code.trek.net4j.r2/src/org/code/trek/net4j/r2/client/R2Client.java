@@ -12,6 +12,9 @@ package org.code.trek.net4j.r2.client;
  * @author jgraham
  */
 public interface R2Client {
+    public final String PRODUCT_GROUP = "org.code.trek.net4j.r2.client";
+    public final String TYPE = "client";
+
     /**
      * Make a request by executing the given {@link R2Method}.
      * 
@@ -20,4 +23,13 @@ public interface R2Client {
      * @return the result of executing the method.
      */
     public int execute(R2Method method);
+
+    /**
+     * Constructs a client request method.
+     * 
+     * @param method
+     *            the description used to construct the method.
+     * @return a new client request method.
+     */
+    public R2Method newMethod(String method);
 }
