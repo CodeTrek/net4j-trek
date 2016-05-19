@@ -20,6 +20,16 @@ public interface R2Servlet {
     public final String TYPE = "servlet";
 
     /**
+     * Give the R2 servlet an opportunity to perform one-time initialization prior to handling requests.
+     */
+    public void activate();
+
+    /**
+     * Give the R2 servlet an opportunity to release resources.
+     */
+    public void deactivate();
+
+    /**
      * R2 client request handler.
      * 
      * @param request

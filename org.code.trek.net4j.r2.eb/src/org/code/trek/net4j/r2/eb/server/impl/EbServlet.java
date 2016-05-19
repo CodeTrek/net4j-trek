@@ -57,4 +57,12 @@ public final class EbServlet implements R2Servlet {
     public void setRequestHandler(R2Handler handler) {
         this.handler = handler;
     }
+
+    @Override
+    public void activate() {
+    }
+
+    @Override
+    public void deactivate() {
+    }
 }
