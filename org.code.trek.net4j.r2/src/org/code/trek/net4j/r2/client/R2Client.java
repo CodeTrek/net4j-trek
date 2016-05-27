@@ -16,6 +16,16 @@ public interface R2Client {
     public final String TYPE = "client";
 
     /**
+     * Give the R2 client an opportunity to perform one-time initialization prior to handling requests.
+     */
+    public void activate();
+
+    /**
+     * Give the R2 client an opportunity to release resources.
+     */
+    public void deactivate();
+
+    /**
      * Make a request by executing the given {@link R2Method}.
      * 
      * @param method

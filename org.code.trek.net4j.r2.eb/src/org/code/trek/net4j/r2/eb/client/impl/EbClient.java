@@ -27,4 +27,12 @@ public class EbClient implements R2Client {
     public R2Method newMethod(String method) {
         return new EbMethod(method);
     }
+
+    @Override
+    public void activate() {
+    }
+
+    @Override
+    public void deactivate() {
+    }
 }
