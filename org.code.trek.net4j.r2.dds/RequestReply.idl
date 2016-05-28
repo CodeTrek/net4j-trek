@@ -1,0 +1,11 @@
+/*
+ *  Copyright (c) 2016 Jay Graham
+ *  All rights reserved. This program and the accompanying
+ *  materials are made available under the terms of the MIT License
+ *  (see http://www.opensource.org/licenses/mit-license.php)
+ */
+
+struct RequestReply {
+  string clientId;//@key
+  sequence<octet, 256> payload;
+};

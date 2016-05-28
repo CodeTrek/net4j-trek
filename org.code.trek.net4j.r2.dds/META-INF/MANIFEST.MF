@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: DDS based Request/Reply
+Bundle-SymbolicName: org.code.trek.net4j.r2.dds
+Bundle-Version: 1.0.0
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: org.code.trek.net4j.r2;bundle-version="1.0.0",
+ org.eclipse.net4j;bundle-version="4.4.1"
