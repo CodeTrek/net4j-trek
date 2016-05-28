@@ -5,7 +5,7 @@
  *  (see http://www.opensource.org/licenses/mit-license.php)
  */
 
-package org.code.trek.net4j.r2.client.impl;
+package org.code.trek.net4j.r2.dds.client.impl;
 
 import org.code.trek.net4j.r2.client.R2Client;
 import org.eclipse.net4j.util.factory.Factory;

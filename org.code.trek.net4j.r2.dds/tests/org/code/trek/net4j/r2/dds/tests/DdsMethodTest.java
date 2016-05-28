@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.code.trek.net4j.r2.client.R2Method;
-import org.code.trek.net4j.r2.client.impl.DdsClient;
+import org.code.trek.net4j.r2.dds.client.impl.DdsClient;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;

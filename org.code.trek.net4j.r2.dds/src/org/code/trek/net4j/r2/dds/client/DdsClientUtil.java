@@ -5,9 +5,9 @@
  *  (see http://www.opensource.org/licenses/mit-license.php)
  */
 
-package org.code.trek.net4j.r2.client;
+package org.code.trek.net4j.r2.dds.client;
 
-import org.code.trek.net4j.r2.client.impl.DdsClientFactory;
+import org.code.trek.net4j.r2.dds.client.impl.DdsClientFactory;
 import org.eclipse.net4j.util.container.IManagedContainer;
 
 /**
