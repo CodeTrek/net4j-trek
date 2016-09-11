@@ -34,8 +34,9 @@ public class DdsServletResponse implements R2ServletResponse {
             InstanceHandle_t instance_handle = InstanceHandle_t.HANDLE_NIL;
             instance.clientId = clientId;
             instance.payload.addAllByte(buf);
-            System.out.println("write response: " + instance);
             writer.write(instance, instance_handle);
+            // writer.wait_for_asynchronous_publishing(Duration_t.DURATION_INFINITE);
+            // System.out.println("[server] write response: " + instance);
         }
     }
 

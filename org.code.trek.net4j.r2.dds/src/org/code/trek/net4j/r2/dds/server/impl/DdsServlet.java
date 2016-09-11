@@ -9,6 +9,7 @@ package org.code.trek.net4j.r2.dds.server.impl;
 
 import java.io.IOException;
 
+import org.code.trek.net4j.r2.dds.OM;
 import org.code.trek.net4j.r2.dds.ParticipantFactory;
 import org.code.trek.net4j.r2.dds.PublisherFactory;
 import org.code.trek.net4j.r2.dds.RL;
@@ -16,6 +17,7 @@ import org.code.trek.net4j.r2.dds.ReplyTopicFactory;
 import org.code.trek.net4j.r2.dds.RequestReply;
 import org.code.trek.net4j.r2.dds.RequestReplyDataReader;
 import org.code.trek.net4j.r2.dds.RequestReplyDataWriter;
+import org.code.trek.net4j.r2.dds.RequestReplySeq;
 import org.code.trek.net4j.r2.dds.RequestTopicFactory;
 import org.code.trek.net4j.r2.dds.SubscriberFactory;
 import org.code.trek.net4j.r2.servlet.R2Handler;
@@ -25,15 +27,18 @@ import org.code.trek.net4j.r2.servlet.R2ServletResponse;
 
 import com.rti.dds.domain.DomainParticipant;
 import com.rti.dds.domain.DomainParticipantFactory;
-import com.rti.dds.infrastructure.RETCODE_ERROR;
 import com.rti.dds.infrastructure.RETCODE_NO_DATA;
+import com.rti.dds.infrastructure.ResourceLimitsQosPolicy;
 import com.rti.dds.infrastructure.StatusKind;
 import com.rti.dds.publication.Publisher;
 import com.rti.dds.subscription.DataReader;
 import com.rti.dds.subscription.DataReaderAdapter;
+import com.rti.dds.subscription.InstanceStateKind;
 import com.rti.dds.subscription.SampleInfo;
+import com.rti.dds.subscription.SampleInfoSeq;
 import com.rti.dds.subscription.SampleStateKind;
 import com.rti.dds.subscription.Subscriber;
+import com.rti.dds.subscription.ViewStateKind;
 import com.rti.dds.topic.Topic;
 
 /**
@@ -43,6 +48,7 @@ import com.rti.dds.topic.Topic;
  *
  */
 public class DdsServlet extends DataReaderAdapter implements R2Servlet {
+
     private final RL resourceLocator;
     private RequestReplyDataWriter writer;
     private R2Handler handler;
@@ -55,28 +61,56 @@ public class DdsServlet extends DataReaderAdapter implements R2Servlet {
     @Override
     public void on_data_available(DataReader reader) {
         RequestReplyDataReader requestReplyReader = (RequestReplyDataReader) reader;
-        SampleInfo info = new SampleInfo();
-        RequestReply receivedData = new RequestReply();
-        for (;;) {
-            try {
-                requestReplyReader.take_next_sample(receivedData, info);
-                if ((info.valid_data) && (info.sample_state == SampleStateKind.NOT_READ_SAMPLE_STATE)) {
-                    handleClientRequest(receivedData.payload.toArrayByte(null), receivedData.clientId, writer);
+        SampleInfoSeq infoSeq = new SampleInfoSeq();
+        RequestReplySeq dataSeq = new RequestReplySeq();
+        try {
+            // @formatter:off
+            requestReplyReader.take(
+                    dataSeq, infoSeq,
+                    ResourceLimitsQosPolicy.LENGTH_UNLIMITED,
+                    SampleStateKind.ANY_SAMPLE_STATE,
+                    ViewStateKind.ANY_VIEW_STATE,
+                    InstanceStateKind.ANY_INSTANCE_STATE
+            );
+            // @formatter:on
+
+            OM.LOG.debug("[server] data sequence size: " + dataSeq.size());
+
+            for (int i = 0; i < dataSeq.size(); ++i) {
+                SampleInfo info = (SampleInfo) infoSeq.get(i);
+                System.out.println("valid data: " + info.valid_data);
+                if (info.valid_data) {
+                    RequestReply sample = (RequestReply) dataSeq.get(i);
+                    if (info.view_state == ViewStateKind.NEW_VIEW_STATE) {
+                        OM.LOG.debug("[server] new instance: client id = " + sample.clientId + "\n");
+                    }
+                    handleClientRequest(sample.payload.toArrayByte(null), sample.clientId, writer);
+                } else {
+                    /* Since there is not valid data, it may include metadata */
+                    RequestReply dummy = new RequestReply();
+                    requestReplyReader.get_key_value(dummy, info.instance_handle);
+
+                    /* Here we print a message if the instance state is ALIVE_NO_WRITERS or ALIVE_DISPOSED */
+                    if (info.instance_state == InstanceStateKind.NOT_ALIVE_NO_WRITERS_INSTANCE_STATE) {
+                        OM.LOG.info("[server] instance " + dummy.clientId + " has no writers\n");
+                    } else if (info.instance_state == InstanceStateKind.NOT_ALIVE_DISPOSED_INSTANCE_STATE) {
+                        OM.LOG.info("[server] instance " + dummy.clientId + " disposed\n");
+                    }
                 }
-            } catch (RETCODE_NO_DATA noData) {
-                break;
-            } catch (RETCODE_ERROR e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
             }
+
+        } catch (RETCODE_NO_DATA noData) {
+            OM.LOG.error("[server] RETCODE_NO_DATA");
+        } catch (IOException e) {
+            OM.LOG.error("[server] error: " + e.getMessage());
+        } finally {
+            requestReplyReader.return_loan(dataSeq, infoSeq);
         }
     }
 
     void handleClientRequest(byte[] payload, String clientId, RequestReplyDataWriter writer) throws IOException {
-        R2ServletRequest request = new DdsServletRequest(payload);
-        R2ServletResponse response = new DdsServletResponse(clientId, writer);
-
+        final R2ServletRequest request = new DdsServletRequest(payload);
+        final R2ServletResponse response = new DdsServletResponse(clientId, writer);
         doRequest(request, response);
     }
 
@@ -138,7 +172,7 @@ public class DdsServlet extends DataReaderAdapter implements R2Servlet {
         // @formatter:on
 
         if (writer == null) {
-            System.err.println("create_datawriter error\n");
+            OM.LOG.error("create_datawriter error\n");
             return;
         }
 
@@ -148,13 +182,16 @@ public class DdsServlet extends DataReaderAdapter implements R2Servlet {
             requestTopic,
             Subscriber.DATAREADER_QOS_DEFAULT,
             this,
-            StatusKind.DATA_AVAILABLE_STATUS);
+            StatusKind.DATA_AVAILABLE_STATUS
+        );
         // @formatter:on
 
         if (reader == null) {
             System.err.println("create_datareader error\n");
             return;
         }
+
+        OM.LOG.info("[server] activated");
     }
 
     @Override
@@ -163,5 +200,7 @@ public class DdsServlet extends DataReaderAdapter implements R2Servlet {
             participant.delete_contained_entities();
             DomainParticipantFactory.TheParticipantFactory.delete_participant(participant);
         }
+
+        OM.LOG.info("[server] deactivated");
     }
 }

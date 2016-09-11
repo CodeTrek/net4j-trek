@@ -12,8 +12,6 @@ import org.eclipse.net4j.util.factory.Factory;
 
 /**
  * {@link DdsClient} factory.
- * 
- * @author jgraham
  */
 public class DdsClientFactory extends Factory {
     public DdsClientFactory() {

@@ -11,11 +11,20 @@ import org.code.trek.net4j.r2.dds.server.impl.DdsServlet;
 
 public class EchoServer {
     private static volatile boolean stopped = false;
+    private static Thread serverThread;
+
+    private static synchronized boolean isStopped() {
+        return stopped;
+    }
+
+    private static synchronized void stopThread() {
+        stopped = true;
+    }
 
     public static void startServer(final String description) {
         stopped = false;
 
-        Thread serverThread = new Thread(new Runnable() {
+        serverThread = new Thread(new Runnable() {
 
             @Override
             public void run() {
@@ -23,7 +32,7 @@ public class EchoServer {
                 servlet.activate();
                 servlet.setRequestHandler(new EchoHandler());
 
-                while (!stopped) {
+                while (!isStopped()) {
                     try {
                         Thread.sleep(1000);
                     } catch (InterruptedException e) {
@@ -36,9 +45,13 @@ public class EchoServer {
         });
 
         serverThread.start();
+        System.out.println("[echo server] started");
+
     }
 
-    public static void stopServer() {
-        stopped = true;
+    public static void stopServer() throws InterruptedException {
+        stopThread();
+        serverThread.join();
+        System.out.println("[echo server] stopped");
     }
 }

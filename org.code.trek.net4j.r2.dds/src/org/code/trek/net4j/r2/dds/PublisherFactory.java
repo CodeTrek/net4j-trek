@@ -1,3 +1,10 @@
+/*
+ *  Copyright (c) 2016 Jay Graham
+ *  All rights reserved. This program and the accompanying
+ *  materials are made available under the terms of the MIT License
+ *  (see http://www.opensource.org/licenses/mit-license.php)
+ */
+
 package org.code.trek.net4j.r2.dds;
 
 import com.rti.dds.domain.DomainParticipant;
@@ -15,7 +22,7 @@ public class PublisherFactory {
         // @formatter:on
 
         if (publisher == null) {
-            System.err.println("create_publisher error\n");
+            OM.LOG.error("Create publisher failed.");
         }
 
         return publisher;

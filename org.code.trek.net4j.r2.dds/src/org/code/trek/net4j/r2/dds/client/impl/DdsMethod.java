@@ -11,6 +11,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
 import org.code.trek.net4j.r2.client.R2Method;
+import org.code.trek.net4j.r2.dds.OM;
 import org.code.trek.net4j.r2.dds.RequestReply;
 import org.code.trek.net4j.r2.dds.RequestReplyDataReader;
 import org.code.trek.net4j.r2.dds.RequestReplyDataWriter;
@@ -39,32 +40,35 @@ public class DdsMethod implements R2Method {
     private byte[] payload;
     private RequestReplyDataReader reader;
     private RequestReplyDataWriter writer;
+    private RequestReply instance;
+    private InstanceHandle_t instanceHandle;
 
     public DdsMethod(String clientId, RequestReplyDataReader reader, RequestReplyDataWriter writer) {
         this.clientId = clientId;
         this.reader = reader;
         this.writer = writer;
+        this.instance = new RequestReply();
+        this.instance.clientId = clientId;
+        this.instanceHandle = InstanceHandle_t.HANDLE_NIL;
+        // this.instanceHandle = writer.register_instance(instance);
     }
 
     @Override
     public int execute() {
-        RequestReply instance = new RequestReply();
-        InstanceHandle_t instance_handle = InstanceHandle_t.HANDLE_NIL;
 
         instance.clientId = clientId;
+        instance.payload.clear();
         instance.payload.addAllByte(payload);
-        writer.write(instance, instance_handle);
+        writer.write(instance, instanceHandle);
+        writer.wait_for_asynchronous_publishing(Duration_t.DURATION_INFINITE);
 
         return 0;
     }
 
-    @Override
-    public InputStream getResponse(int timeOutMs) {
-        ByteArrayInputStream inputStream = null;
-
+    private QueryCondition createQueryCondition() {
         /* Create query condition */
         StringSeq query_parameters = new StringSeq(1);
-        query_parameters.add("'" + this.clientId + "'");
+        query_parameters.add("'" + clientId + "'");
         String query_expression = new String("clientId MATCH %0");
 
         // @formatter:off
@@ -76,8 +80,16 @@ public class DdsMethod implements R2Method {
             query_parameters);
         // @formatter:on
 
+        return query_condition;
+    }
+
+    @Override
+    public InputStream getResponse(int timeOutMs) {
+        ByteArrayInputStream inputStream = null;
+
+        QueryCondition query_condition = createQueryCondition();
+
         WaitSet waitset = new WaitSet();
-        final Duration_t wait_timeout = new Duration_t(1, timeOutMs);
 
         /* Attach Query Conditions */
         waitset.attach_condition(query_condition);
@@ -90,9 +102,14 @@ public class DdsMethod implements R2Method {
          * user-specified timeout expires.
          */
         try {
-            waitset.wait(active_conditions_seq, wait_timeout);
+            waitset.wait(active_conditions_seq, Duration_t.from_millis(timeOutMs));
         } catch (RETCODE_TIMEOUT to) {
-            System.out.println("Wait timed out!! No conditions were triggered.");
+            StringSeq params = new StringSeq();
+            query_condition.get_query_parameters(params);
+            OM.LOG.info("Wait timed out. Condition: " + query_condition.get_query_expression()
+                    + " not triggered. Parameters: " + params);
+            waitset.detach_condition(query_condition);
+            waitset.delete();
             return null;
         }
 
@@ -105,7 +122,7 @@ public class DdsMethod implements R2Method {
             // Read the data
             for (int i = 0; i < data_seq.size(); ++i) {
                 if (!((SampleInfo) info_seq.get(i)).valid_data) {
-                    System.out.println("Got metadata");
+                    OM.LOG.info("Received metatdata.");
                     continue;
                 }
 
@@ -113,8 +130,11 @@ public class DdsMethod implements R2Method {
                 inputStream = new ByteArrayInputStream(reply.payload.toArrayByte(new byte[0]));
             }
         } catch (RETCODE_NO_DATA noData) {
-            System.out.println("reply complete");
+            OM.LOG.info("Reply complete.");
         } finally {
+            waitset.detach_condition(query_condition);
+            waitset.delete();
+            reader.delete_readcondition(query_condition);
             /* Return the loaned data */
             reader.return_loan(data_seq, info_seq);
         }

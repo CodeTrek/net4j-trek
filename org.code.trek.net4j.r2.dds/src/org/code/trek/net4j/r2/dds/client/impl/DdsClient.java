@@ -32,15 +32,17 @@ import com.rti.dds.topic.Topic;
  */
 public class DdsClient implements R2Client {
 
+    private DomainParticipant participant;
+    private Topic replyTopic;
+    private Topic requestTopic;
+
     private final String clientId;
+
     private final int domain;
     @SuppressWarnings("unused")
     private final String partition;
-    private DomainParticipant participant;
     private Subscriber subscriber;
-    private Topic replyTopic;
     private Publisher publisher;
-    private Topic requestTopic;
     private RequestReplyDataReader reader;
     private RequestReplyDataWriter writer;
 
@@ -52,23 +54,12 @@ public class DdsClient implements R2Client {
     }
 
     @Override
-    public int execute(R2Method method) {
-        return method.execute();
-    }
-
-    @Override
-    public R2Method newMethod(final String method) {
-        return new DdsMethod(clientId, reader, writer);
-    }
-
-    @Override
     public void activate() {
+        createParticipant(domain);
+
         // Create the DDS objects necessary for request/reply communication with the server.
-        participant = ParticipantFactory.create(this.domain);
         subscriber = SubscriberFactory.create(participant);
-        replyTopic = ReplyTopicFactory.create(participant);
         publisher = PublisherFactory.create(participant);
-        requestTopic = RequestTopicFactory.create(participant);
 
         // @formatter:off
         reader = (RequestReplyDataReader) subscriber.create_datareader(
@@ -82,7 +73,7 @@ public class DdsClient implements R2Client {
         writer = (RequestReplyDataWriter) publisher.create_datawriter(
             requestTopic,
             Publisher.DATAWRITER_QOS_DEFAULT,
-            null /* listener */,
+            null, /* listener */
             StatusKind.STATUS_MASK_NONE);
         // @formatter:on
     }
@@ -95,5 +86,21 @@ public class DdsClient implements R2Client {
         }
 
         participant = null;
+    }
+
+    @Override
+    public int execute(R2Method method) {
+        return method.execute();
+    }
+
+    @Override
+    public R2Method newMethod(final String method) {
+        return new DdsMethod(clientId, reader, writer);
+    }
+
+    private void createParticipant(int domainId) {
+        participant = ParticipantFactory.create(domainId);
+        replyTopic = ReplyTopicFactory.create(participant);
+        requestTopic = RequestTopicFactory.create(participant);
     }
 }
